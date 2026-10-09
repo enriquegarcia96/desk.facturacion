@@ -1,18 +1,15 @@
-use std::collections::HashMap;
 use std::format;
-
 use tauri::State;
-use serde_json::{Value, json};
+use serde_json::{json};
 use log::{info, trace};
-//use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::prelude::*;
 
-use crate::domain::api_response::ApiResponse;
-use crate::domain::dto::request::login_dto::UserDto;
-use crate::domain::json_template::TemplateJson;
-use crate::models::employee_model::Employee;
-use crate::{infrastructure::db::connections::mysql::mysql_connection::DbPool};
 use crate::constants::constant::Constants;
+use crate::models::employee_model::Employee;
+use crate::domain::api_response::ApiResponse;
+use crate::domain::dto::response::associated_menus_dto::MenusDto;
+use crate::domain::dto::request::login_dto::UserDto;
+use crate::{infrastructure::db::connections::mysql::mysql_connection::DbPool};
 
 #[tauri::command]
 pub async fn authentication(state: State<'_, DbPool>, request: UserDto) ->  Result<ApiResponse, ApiResponse> {
@@ -37,31 +34,20 @@ pub async fn authentication(state: State<'_, DbPool>, request: UserDto) ->  Resu
   }
 
   if result_employee.state == Constants::INACTIVO {
+    info!("<<< user_name {} inactivo", result_employee.user_name);
     return Err(ApiResponse::new_error(format!("ERROR"), Constants::UNAUTHORIZED, format!("Usuario Inactivo")));
   }
 
-  let associated_menus: Vec<(String, String)> = employees::table
+  let associated_menus: Vec<MenusDto> = employees::table
     .inner_join(roles::table.on(roles::id_role.eq(employees::role_id)))
     .inner_join(permissions::table.on(permissions::role_id.eq(roles::id_role)))
     .inner_join(menus::table.on(menus::id_menu.eq(permissions::menu_id)))
     .filter(employees::user_name.eq(&request.user_name))
     .select((menus::title_menu, menus::route))
-    .load(&mut conn)
+    .load::<MenusDto>(&mut conn)
     .map_err(|e| ApiResponse::new_error(format!("ERROR"), 404, format!("El empleado NO tiene menus asociados {:?}", e)))?;
 
-  info!("associated_menus {:?}", associated_menus);
+  trace!("<<< associated_menus {:?}", associated_menus);
 
-  for ss in &associated_menus {
-    trace!("{} and {} ", ss.0, ss.1)
-  }
-
-  //TODO: armar el array de json para mandarlo al frontend
-  let ss: TemplateJson;
-  let mut dd: HashMap<String, Value> = HashMap::new();
-  for menu in &associated_menus {
-    dd.insert(menu.0.clone(), Value::Number(221.into()));
-  }
-
-
-  Ok(ApiResponse::new_success("status_code".to_string(), 200, "message".to_string(), json!({"sss":222})))
+  Ok(ApiResponse::new_success(format!("OK"), Constants::OK, format!("Menus asociados"), json!({"menus": associated_menus})))
 }

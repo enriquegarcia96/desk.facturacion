@@ -1,20 +1,24 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-mod schema;
+mod commands;
 mod infrastructure;
 mod models;
-mod commands;
 mod modules;
+mod schema;
+mod domain;
+mod constants;
 
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+  let pool = infrastructure::db::connections::mysql::mysql_connection::create_pool();
+
+  tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
+    .manage(pool)
+    .invoke_handler(tauri::generate_handler![
+      commands::auth::command_authentication
+    ])
+    .plugin(tauri_plugin_log::Builder::new().build())
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
