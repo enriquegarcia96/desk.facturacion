@@ -1,8 +1,12 @@
 import './App.css';
-import { HomePage } from './features/auth/pages/home/HomePage';
+import { RouterProvider } from 'react-router'
+
+import { appRouter } from './app.router';
 
 const App = () => {
-  return <HomePage/>;
+  return (
+    <RouterProvider router={appRouter} />
+  )
 };
 
 export default App;

@@ -1,23 +1,33 @@
+import { useState } from "react";
 import type { FormProps } from "antd";
-import { Button, Form, Input } from "antd";
-
+import { Button, Form, Input, Alert } from "antd";
 import { ShopTwoTone } from '@ant-design/icons';
 
+import { LoginRequest } from '@interface/Request';
+import { useAuthStore } from "../store/auth.store";
 
-type FieldType = {
-  username?: string;
-  password?: string;
+export const LoginForm = () => {
+const loginUser = useAuthStore((state) => state.loginAction);
+const isError = useAuthStore((state => state.isError));
+const [showError, setShowError] = useState(false);
+const [message, setMessage] = useState('');
+const [statusCode, setStatusCode] = useState('');
+
+const onFinish: FormProps<LoginRequest>["onFinish"] = async (values: LoginRequest) => {
+  const {code, message, statusCode} = await loginUser(values);
+  if (code != 200) {
+    setShowError(isError);
+    setMessage(message);
+    setStatusCode(statusCode);
+  }else {
+    setShowError(false)
+  }
 };
 
-const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-  console.log("Success:", values);
-};
-
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
+const onFinishFailed: FormProps<LoginRequest>["onFinishFailed"] = (errorInfo) => {
   console.log("Failed:", errorInfo);
 };
 
-export const LoginForm = () => {
   return (
     <section>
       <div className="bg-white relative items-center w-full px-5 py-12 mx-auto md:px-12 lg:px-20 max-w-7xl">
@@ -41,10 +51,10 @@ export const LoginForm = () => {
             autoComplete="off"
             className="mt-4! space-y-6!"
           >
-            <Form.Item<FieldType>
-              name="username"
+            <Form.Item<LoginRequest>
+              name="userName"
               rules={[
-                { required: true, message: "Please input your username!" },
+                { required: true, message: "¡Por favor, ingresa tu nombre de usuario!" },
               ]}
             >
               <Input
@@ -53,10 +63,10 @@ export const LoginForm = () => {
               />
             </Form.Item>
 
-            <Form.Item<FieldType>
+            <Form.Item<LoginRequest>
               name="password"
               rules={[
-                { required: true, message: "Please input your password!" },
+                { required: true, message: "¡Por favor, ingresa tu contraseña!" },
               ]}
             >
               <Input.Password
@@ -64,6 +74,15 @@ export const LoginForm = () => {
                 className="block! w-full! px-6! py-3! text-black! bg-white border! border-gray-200! rounded-full! appearance-none! placeholder:text-gray-400! focus:border-blue-500! focus:outline-none! focus:ring-blue-500! sm:text-sm!"
               />
             </Form.Item>
+
+          {showError ?
+            <Alert
+              title={statusCode}
+              description={message}
+              type="error"
+              showIcon
+            /> : ''
+          }
 
             <Form.Item label={null}>
               <Button 
