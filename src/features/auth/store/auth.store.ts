@@ -1,31 +1,34 @@
-import { create } from 'zustand'
+import {create} from 'zustand';
 
-type State = {
-  count: number
+import { LoginRequest } from '@interface/Request';
+import { IApiResponse, IAuthEmployee } from '@interface/ApiResponse';
+import { AuthService } from '../services/auth.service';
+
+interface AuthState {
+  response: IApiResponse<IAuthEmployee> | null;
+  isError: boolean;
+
+  loginAction: (request: LoginRequest) => Promise<IApiResponse<IAuthEmployee>>;
+  logoutAction: () => void;
 }
 
-type Actions = {
-  increment: (qty: number) => void
-  decrement: (qty: number) => void
-}
+export const useAuthStore = create<AuthState>()((set) =>({
+  response: null,
+  isError: false,
 
-const useCountStore = create<State & Actions>((set) => ({
-  count: 0,
-  increment: (qty: number) => set((state) => ({ count: state.count + qty })),
-  decrement: (qty: number) => set((state) => ({ count: state.count - qty })),
-}))import { create } from 'zustand'
+  loginAction: async (request: LoginRequest) => {
+    try {
+      const data = await AuthService.login(request);      
+      set({response: data, isError: false})
+      return data;
+    } catch (error) {
+      const errorResponse = error as IApiResponse<IAuthEmployee>;
+      set({ response: errorResponse, isError: true });
+      console.error("<<< ERROR ", errorResponse);
+      return errorResponse;
+    }
+  },
 
-type State = {
-  count: number
-}
+  logoutAction() {},
 
-type Actions = {
-  increment: (qty: number) => void
-  decrement: (qty: number) => void
-}
-
-const useCountStore = create<State & Actions>((set) => ({
-  count: 0,
-  increment: (qty: number) => set((state) => ({ count: state.count + qty })),
-  decrement: (qty: number) => set((state) => ({ count: state.count - qty })),
 }))
