@@ -1,34 +1,51 @@
 import {create} from 'zustand';
 
 import { LoginRequest } from '@interface/Request';
-import { IApiResponse, IAuthEmployee } from '@interface/ApiResponse';
+import { IApiResponse, IAuth, IAuthEmployee } from '@interface/ApiResponse';
 import { AuthService } from '../services/auth.service';
 
 interface AuthState {
-  response: IApiResponse<IAuthEmployee> | null;
+  user: IAuthEmployee | null;
   isError: boolean;
 
-  loginAction: (request: LoginRequest) => Promise<IApiResponse<IAuthEmployee>>;
+  hasRole: () => boolean;
+  loginAction: (request: LoginRequest) => Promise<IApiResponse<IAuth>>;
   logoutAction: () => void;
 }
 
-export const useAuthStore = create<AuthState>()((set) =>({
-  response: null,
+export const useAuthStore = create<AuthState>()((set, get) =>({
+  user: null,
   isError: false,
+
+  hasRole: (): boolean =>  {
+    let hasRole: boolean;
+
+    switch (get().user?.roleName) {
+      case 'administrador':
+      case 'ventas':
+        hasRole = true;
+      break;    
+      default:
+        hasRole = false;
+      break;
+    }
+    return hasRole;
+  },
 
   loginAction: async (request: LoginRequest) => {
     try {
-      const data = await AuthService.login(request);      
-      set({response: data, isError: false})
-      return data;
+      const response = await AuthService.login(request);
+      for(const emp of response.data.employee){
+        set({user: emp, isError: false});
+      }
+      return response
     } catch (error) {
-      const errorResponse = error as IApiResponse<IAuthEmployee>;
-      set({ response: errorResponse, isError: true });
-      console.error("<<< ERROR ", errorResponse);
-      return errorResponse;
+      console.error(error);
+      const response = error as IApiResponse<IAuth>;
+      set({user: undefined, isError: true})
+      return response;
     }
   },
 
   logoutAction() {},
-
 }))

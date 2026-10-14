@@ -16,7 +16,8 @@ pub fn run() {
     .plugin(tauri_plugin_opener::init())
     .manage(pool)
     .invoke_handler(tauri::generate_handler![
-      commands::auth::command_authentication
+      commands::auth::command_authentication,
+      commands::configuration::command_get_menus
     ])
     .plugin(tauri_plugin_log::Builder::new().build())
     .run(tauri::generate_context!())

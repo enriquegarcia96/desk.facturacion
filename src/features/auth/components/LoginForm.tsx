@@ -1,17 +1,19 @@
 import { useState } from "react";
 import type { FormProps } from "antd";
-import { Button, Form, Input, Alert } from "antd";
+import { useNavigate } from "react-router";
 import { ShopTwoTone } from '@ant-design/icons';
+import { Button, Form, Input, Alert } from "antd";
 
 import { LoginRequest } from '@interface/Request';
 import { useAuthStore } from "../store/auth.store";
 
 export const LoginForm = () => {
-const loginUser = useAuthStore((state) => state.loginAction);
-const isError = useAuthStore((state => state.isError));
-const [showError, setShowError] = useState(false);
-const [message, setMessage] = useState('');
-const [statusCode, setStatusCode] = useState('');
+  const navigate = useNavigate();
+  const loginUser = useAuthStore((state) => state.loginAction);
+  const isError = useAuthStore((state => state.isError));
+  const [showError, setShowError] = useState(false);
+  const [message, setMessage] = useState('');
+  const [statusCode, setStatusCode] = useState('');
 
 const onFinish: FormProps<LoginRequest>["onFinish"] = async (values: LoginRequest) => {
   const {code, message, statusCode} = await loginUser(values);
@@ -20,7 +22,9 @@ const onFinish: FormProps<LoginRequest>["onFinish"] = async (values: LoginReques
     setMessage(message);
     setStatusCode(statusCode);
   }else {
-    setShowError(false)
+    setShowError(false);
+    navigate('/panel');
+    return;
   }
 };
 
@@ -56,6 +60,7 @@ const onFinishFailed: FormProps<LoginRequest>["onFinishFailed"] = (errorInfo) =>
               rules={[
                 { required: true, message: "¡Por favor, ingresa tu nombre de usuario!" },
               ]}
+              initialValue={'esgarcia'}
             >
               <Input
                 placeholder="kike"
@@ -68,6 +73,7 @@ const onFinishFailed: FormProps<LoginRequest>["onFinishFailed"] = (errorInfo) =>
               rules={[
                 { required: true, message: "¡Por favor, ingresa tu contraseña!" },
               ]}
+              initialValue={'123456'}
             >
               <Input.Password
                 placeholder="Contraseña"

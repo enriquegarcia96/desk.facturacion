@@ -1,1 +1,18 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@theme {
+  --shadow-3xl: 14px 17px 40px 4px;
+  --color-shadow-500: rgba(112, 144, 176, 0.08);
+}
+
+h1 {
+  @apply text-3xl font-bold text-gray-800;
+}
+
+h2 {
+  @apply text-2xl font-semibold text-gray-800;
+}
+
+hr {
+  @apply my-1 border-gray-300 border mb-3;
+}
