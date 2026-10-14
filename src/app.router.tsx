@@ -4,16 +4,17 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { AdminRoute } from "./components/ProtectedRoute";
 import { LoginPage } from "./features/auth/pages/login/LoginPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { InventoryPage } from "./features/inventory/pages/home/InventoryPage";
 
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 
 export const appRouter = createBrowserRouter([
   {
-    path: "/auth",
+    path: '/auth',
     element: <LoginPage />,
   },
   {
-    path: "/panel",
+    path: '/panel',
     element: (
       <AdminRoute>
         <DashboardLayout />
@@ -26,7 +27,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'inventario',
-        element: <h1>hola desde inventario</h1>
+        element: <InventoryPage />
       },
       {
         path:  'inventario/productos',
@@ -39,7 +40,7 @@ export const appRouter = createBrowserRouter([
     ],
   },
   {
-    path: "*",
-    element: <Navigate to="/auth" />
+    path: '*',
+    element: <Navigate to='/auth' />
   }
 ]);
