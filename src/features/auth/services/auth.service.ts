@@ -1,12 +1,12 @@
 import { invoke } from "@tauri-apps/api/core"
 
-import { IApiResponse, IAuthEmployee } from "@interface/ApiResponse";
+import { IApiResponse, IAuth } from "@interface/ApiResponse";
 import { LoginRequest } from "@interface/Request";
 
 export class AuthService {
 
-static login = async(request: LoginRequest): Promise<IApiResponse<IAuthEmployee>> => {  
-  return await invoke<IApiResponse<IAuthEmployee>>('command_authentication', {request});
+static login = async(request: LoginRequest): Promise<IApiResponse<IAuth>> => {  
+  return await invoke<IApiResponse<IAuth>>('command_authentication', {request});
 }
 
 }

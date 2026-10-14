@@ -1,11 +1,12 @@
-use diesel::deserialize::FromSqlRow;
+use diesel::deserialize::{Queryable};
 use serde::Serialize;
 
 
-#[derive(Serialize, FromSqlRow, Debug)]
+#[derive(Serialize, Queryable, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthDto {
   pub identity_employee: String,
   pub user_name: String,
-  pub state: i8
+  pub state: i8,
+  pub role_name: String
 }
