@@ -4,10 +4,10 @@ import { InventoryTable } from "../../components/InventoryTable";
 export const InventoryPage = () => {
   return (
     <div>
-      <h5>hola desde home </h5>
-      <InventoryCategory />  
-      
+      <h1>Categorias</h1>
+      <InventoryCategory />
+
       <InventoryTable />
     </div>
-  )
-}
+  );
+};
