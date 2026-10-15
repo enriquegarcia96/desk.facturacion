@@ -2,12 +2,10 @@ import { Button, Form, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { IoAddOutline, IoFileTrayFullOutline } from 'react-icons/io5';
 
-
 export const InventoryCategory = () => {
   const [form] = Form.useForm();
   const [clientReady, setClientReady] = useState<boolean>(false);
 
-  // To disable submit button at the beginning.
   useEffect(() => {
     setClientReady(true);
   }, []);
@@ -20,7 +18,7 @@ export const InventoryCategory = () => {
     <div className='flex justify-center-safe w-full py-1 mb-1 mt-1 bg-white rounded-xl'>
       <Form form={form} name='horizontal_login' layout='inline' onFinish={onFinish}>
       <Form.Item
-        name='username'
+        name='nameCategory'
         rules={[{ required: true, message: 'Por favor, ingrese un nombre' }]}
         extra='Máximo 40 caracteres'
       >
