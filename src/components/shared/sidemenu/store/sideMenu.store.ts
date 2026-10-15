@@ -1,9 +1,8 @@
 import {create} from 'zustand';
 
 import { InfoEmployeeRequest } from '@interface/Request';
-import { IApiResponse, IMenu, IMenus } from '@interface/ApiResponse';
 import { SideMenuService } from '../services/sideMenu.service';
-
+import { IApiResponse, IMenu, IMenus } from '@interface/ApiResponse';
 interface SideMenuState{
   menus: IMenu[];
 
@@ -15,10 +14,8 @@ export const useSideMenuStore = create<SideMenuState>()((set) => ({
 
   loadEmployeeMenusAction: async (request: InfoEmployeeRequest) => {
     try {
-      console.log('entro al menus')
       const response = await SideMenuService.getMenus(request);
       set({menus: response.data.menus})
-      console.log('termino de cargar la varibnale menus')
       return response;
     } catch (error) {
       console.error(error);
