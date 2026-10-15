@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { DownOutlined } from '@ant-design/icons';
+import { AndroidFilled, DownOutlined, LoadingOutlined, RocketTwoTone, ShopFilled, ShopTwoTone } from '@ant-design/icons';
 import type { GetRef, TableColumnsType, TableProps } from 'antd';
-import { Badge, Dropdown, Space, Table } from 'antd';
+import { Badge, Dropdown, Space, Spin, Table } from 'antd';
+
+import { useInventoryStore } from '../store/inventory.store';
+import { TableDataCategory } from '@interface/TableType';
 
 // ===================== HOC AutoHeightTable =====================
 const measureClassNames = {
@@ -127,7 +130,7 @@ const expandDataSource = Array.from({ length: 13 }).map<ExpandedDataType>(
   }),
 );
 
-const dataSource = Array.from({ length: 113 }).map<DataType>((_, i) => ({
+const dataSource = Array.from({ length: 2 }).map<DataType>((_, i) => ({
   key: i.toString(),
   name: 'Screen',
   platform: 'iOS',
@@ -189,6 +192,32 @@ const expandedRowRender = () => (
 
 // ===================== Componente principal =====================
 export const InventoryTable = () => {
+  const {loadCategoriesAction, categories, isLoadingCategories} = useInventoryStore();
+  
+  useEffect(() => {
+    loadCategoriesAction();
+  }, [loadCategoriesAction]);
+
+  const columns2: TableColumnsType<TableDataCategory> = [
+    {title: 'Nombre', dataIndex: 'nameCategory', key: 'nameCategory'},
+    {title: 'Acciones', key: 'operation', render: () => <a>borrar</a>}
+  ];
+
+  const dataSource = Array.from({ length: 2 }).map<DataType>((_, i) => ({
+  key: i.toString(),
+  name: 'Screen',
+  platform: 'iOS',
+  version: '10.3.4.5654',
+  upgradeNum: 500,
+  creator: 'Jack',
+  createdAt: '2014-12-24 23:12:00',
+}));
+
+  const dataSource2 = categories.map<TableDataCategory>(({idCategory, nameCategory}) => ({
+    idCategory,
+    nameCategory
+  }))
+
   return (
     <div
       style={{
@@ -209,8 +238,28 @@ export const InventoryTable = () => {
           expandable={{ expandedRowRender }}
           dataSource={dataSource}
           size='small'
+          loading={{
+            spinning: isLoadingCategories,
+            indicator: <ShopTwoTone style={{ fontSize: 80 }} spin />,
+            description: 'Loading...'
+          }}
         />
       </div>
+
+      <div style={{ height: 450, minHeight: 0 }}>
+        <AutoHeightTable<TableDataCategory>
+          columns={columns2}
+          expandable={{ expandedRowRender }}
+          dataSource={dataSource2}
+          size='small'
+          loading={{
+            spinning: isLoadingCategories,
+            indicator: <ShopTwoTone style={{ fontSize: 80 }} spin />,
+            description: 'Cargando...'
+          }}
+        />
+      </div>
+
     </div>
   );
 };
