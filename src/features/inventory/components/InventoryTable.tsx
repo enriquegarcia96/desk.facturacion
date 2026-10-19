@@ -1,10 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AndroidFilled, DownOutlined, LoadingOutlined, RocketTwoTone, ShopFilled, ShopTwoTone } from '@ant-design/icons';
-import type { GetRef, TableColumnsType, TableProps } from 'antd';
-import { Badge, Dropdown, Space, Spin, Table } from 'antd';
+import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, DeleteFilled, DeleteOutlined, DownOutlined, EditFilled, EditOutlined, ExclamationCircleOutlined, PlusOutlined, ShopTwoTone, SyncOutlined } from '@ant-design/icons';
+import { GetRef, TableColumnsType, TableProps, Flex, Tag, Divider } from 'antd';
+import { Badge, Dropdown, Space, Table } from 'antd';
 
 import { useInventoryStore } from '../store/inventory.store';
-import { TableDataCategory } from '@interface/TableType';
+import { TableDataCategory, TableDataProduct } from '@interface/TableType';
+import { SlGameController } from 'react-icons/sl';
+import classNames from 'classnames';
+import { CategoryRequest } from '@interface/Request';
+import Actions from 'antd/es/transfer/Actions';
+import { FormNewProduct } from './FormNewProduct';
 
 // ===================== HOC AutoHeightTable =====================
 const measureClassNames = {
@@ -167,6 +172,33 @@ const expandColumns: TableColumnsType<ExpandedDataType> = [
   },
 ];
 
+const expandColumns2: TableColumnsType<TableDataProduct> = [
+  {title: 'Producto', dataIndex: 'productName', key: 'productName'},
+  { title: 'Date', dataIndex: 'date', key: 'date' },
+  //{ title: 'Name', dataIndex: 'name', key: 'name', filters: [{text: 'Cola', value: 'coca'}, {text: 'pollo', value: 'polo2'}], onFilter: (value, record) => record.name.indexOf(value as string) === 0 },
+  {
+    title: 'Status',
+    key: 'state',
+    render: () => <Badge status="success" text="Finished" />,
+  },
+  { title: 'Upgrade Status', dataIndex: 'upgradeNum', key: 'upgradeNum' },
+  {
+    title: 'Action',
+    key: 'operation',
+    render: () => (
+      <Space size="medium">
+        <a>Pause</a>
+        <a>Stop</a>
+        <Dropdown menu={{ items }}>
+          <a>
+            More <DownOutlined />
+          </a>
+        </Dropdown>
+      </Space>
+    ),
+  },
+];
+
 // ===================== Columnas tabla padre =====================
 const columns: TableColumnsType<DataType> = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -190,9 +222,25 @@ const expandedRowRender = () => (
   />
 );
 
+const variants = ['solid'] as const;
+const presets = [
+  { status: 'success', icon: <PlusOutlined />, title: 'Agregar Producto', action: 'ADD' },
+  { status: 'processing', icon: <EditFilled />, title: 'Editar', action: 'EDIT'},
+  { status: 'error', icon: <DeleteFilled />, title: 'Eliminar', action: 'DELETE' },
+];
+
+enum ActionsCrud{
+  ADD = 'ADD',
+  EDIT = 'EDIT',
+  DELETE = 'DELETE'
+}
+
+
+
 // ===================== Componente principal =====================
 export const InventoryTable = () => {
-  const {loadCategoriesAction, categories, isLoadingCategories} = useInventoryStore();
+  const {loadCategoriesAction, categories, isLoadingCategories, loadProductsByCategoryAction, products} = useInventoryStore();
+  const [open, setOpen] = useState(false);
   
   useEffect(() => {
     loadCategoriesAction();
@@ -200,25 +248,103 @@ export const InventoryTable = () => {
 
   const columns2: TableColumnsType<TableDataCategory> = [
     {title: 'Nombre', dataIndex: 'nameCategory', key: 'nameCategory'},
-    {title: 'Acciones', key: 'operation', render: () => <a>borrar</a>}
+    {title: 'Acciones', key: 'operation', render: () => (
+      <>
+      <Space size={'small'}>
+        {variants.map((variant) => (
+      <div key={variant}>
+        <Flex gap="small" align="center" wrap>
+          {presets.map(({ status, icon, title, action }) => (
+            <Tag 
+              className='cursor-pointer'
+              onClick={() => addNewProduct(action)}
+              key={status}
+              color={status}
+              icon={icon}
+              variant={variant}
+            >
+              {title}
+            </Tag>
+          ))}
+        </Flex>
+      </div>
+    ))}
+      </Space>
+      </>
+    )}
   ];
 
   const dataSource = Array.from({ length: 2 }).map<DataType>((_, i) => ({
-  key: i.toString(),
-  name: 'Screen',
-  platform: 'iOS',
-  version: '10.3.4.5654',
-  upgradeNum: 500,
-  creator: 'Jack',
-  createdAt: '2014-12-24 23:12:00',
-}));
+    key: i.toString(),
+    name: 'Screen',
+    platform: 'iOS',
+    version: '10.3.4.5654',
+    upgradeNum: 500,
+    creator: 'Jack',
+    createdAt: '2014-12-24 23:12:00',
+  }));
 
   const dataSource2 = categories.map<TableDataCategory>(({idCategory, nameCategory}) => ({
+    key: idCategory,
     idCategory,
     nameCategory
+  }));
+
+  const handleExpand = async (expanded: boolean, record: TableDataCategory) => {
+    console.log('aquiiiii expnadibee ', expanded)
+    console.log('recors ', record);
+    const request: CategoryRequest = {
+      idCategory: record.idCategory,
+      categoryName: record.nameCategory
+    }
+    await loadProductsByCategoryAction(request);
+  }
+
+  const expandDataSource2 = products.map<TableDataProduct>(({idProduct, productName}) => ({
+    key: idProduct,
+    idProduct, 
+    productName
   }))
 
+  const expandedRowRender2 = () => (
+  <Table<TableDataProduct>
+    columns={expandColumns2}
+    dataSource={expandDataSource2}
+    pagination={false}
+    scroll={{ y: 200, x: 'max-content' }}   // 👈 scroll fijo del hijo
+    size="small"
+    showSorterTooltip={{target: 'sorter-icon'}}
+  />
+  );
+
+  const addNewProduct = (action: string) => {
+    console.log('aquiiii')
+  switch (action) {
+    case ActionsCrud.ADD:
+      setOpen(true);
+      console.log(open)
+    break;
+
+    case ActionsCrud.EDIT:
+
+    break;
+
+    case ActionsCrud.DELETE:
+
+    break;  
+    default:
+      break;
+  }
+}
+
+const onClosed = () => {
+  setOpen(false);
+}
+
+//si hago click a un nodo vacio, entonces, y luego a uno que si hay data, me copia que no hay data y vioce versa
   return (
+    <>
+    <FormNewProduct openModal={open} onClosed={() => onClosed()} />
     <div
       style={{
         height: '100vh', // hace mas alto la tablanpx
@@ -230,26 +356,12 @@ export const InventoryTable = () => {
         background: '#f5f5f5',
         overflow: 'auto',
       }}
-    >
-      {/* Tabla 3: small */}
-      <div style={{ height: 450, minHeight: 0 }}>
-        <AutoHeightTable<DataType>
-          columns={columns}
-          expandable={{ expandedRowRender }}
-          dataSource={dataSource}
-          size='small'
-          loading={{
-            spinning: isLoadingCategories,
-            indicator: <ShopTwoTone style={{ fontSize: 80 }} spin />,
-            description: 'Loading...'
-          }}
-        />
-      </div>
-
+    > 
+      
       <div style={{ height: 450, minHeight: 0 }}>
         <AutoHeightTable<TableDataCategory>
           columns={columns2}
-          expandable={{ expandedRowRender }}
+          expandable={{ onExpand: handleExpand, expandedRowRender: expandedRowRender2 }}
           dataSource={dataSource2}
           size='small'
           loading={{
@@ -261,6 +373,9 @@ export const InventoryTable = () => {
       </div>
 
     </div>
+    </>
   );
 };
+
+
 

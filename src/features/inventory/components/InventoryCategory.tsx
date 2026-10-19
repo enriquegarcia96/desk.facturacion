@@ -2,16 +2,26 @@ import { Button, Form, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { IoAddOutline, IoFileTrayFullOutline } from 'react-icons/io5';
 
+import { NewCategoryRequest } from '@interface/Request';
+import { useAuthStore } from '../../auth/store/auth.store';
+import { useInventoryStore } from '../store/inventory.store';
+
 export const InventoryCategory = () => {
   const [form] = Form.useForm();
   const [clientReady, setClientReady] = useState<boolean>(false);
+  const {addNewCategoryAction} = useInventoryStore();
+  const employee = useAuthStore((state) => state.user);
 
   useEffect(() => {
     setClientReady(true);
   }, []);
-
-  const onFinish = (values: any) => {
-    console.log('Finish:', values);
+  
+  const onFinish = (request: NewCategoryRequest) => {
+    const newRequest: NewCategoryRequest = {
+      nameCategory: request.nameCategory,
+      userName: employee?.userName || 'sys'
+    };
+    addNewCategoryAction(newRequest);
   };
 
   return (
