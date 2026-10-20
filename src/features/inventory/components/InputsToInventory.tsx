@@ -1,4 +1,6 @@
-import { Tag, Form, Input } from 'antd';
+import { Tag, Form, InputNumber } from 'antd';
+
+import { formatter } from '../../../utils';
 
 export const InputsToInventory = () => {
   return (
@@ -14,8 +16,15 @@ export const InputsToInventory = () => {
         label='Stock'
         className='font-bold'
         rules={[{ required: true, message: 'Please input the title of collection!' }]}
+        initialValue={0.0}
       >
-        <Input size='small' />
+        <InputNumber<number>
+          min={0}
+          formatter={formatter}
+          parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          size='small'
+          placeholder='L. 0.0'
+        />
       </Form.Item>
       </div>      
     </div>

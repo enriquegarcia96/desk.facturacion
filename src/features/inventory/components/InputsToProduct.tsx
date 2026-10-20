@@ -1,4 +1,4 @@
-import { Form, Input, Tag, InputNumber  } from "antd";
+import { Form, Input, Tag } from "antd";
 
 export const InputsToProduct = () => {
   return (
@@ -15,26 +15,23 @@ export const InputsToProduct = () => {
           label="Producto"
           className='font-bold'
           rules={[
-            {
-              required: true,
-              message: "Por favor ingresa el nombre producto",
-            },
+            { required: true, message: "Requerido" },
           ]}
         >
           <Input size='small' placeholder='Ej. Queso' />
         </Form.Item>
         <Form.Item
-          name="barcode"
+          name="barCode"
           label="Código de barra"
           className='font-bold'
-          rules={[
-            {
-              required: true,
-              message: "Please input the title of collection!",
-            },
-          ]}
+          rules={[{ required: true, message: "Requerido" }]}
         >
-          <Input size="small" placeholder='Ej. 3462788' />
+          <Input
+            min={0}
+            size="small"
+            placeholder='Ej. 3462788'
+            type={'number'}
+          />
         </Form.Item>
       </div>
     </div>

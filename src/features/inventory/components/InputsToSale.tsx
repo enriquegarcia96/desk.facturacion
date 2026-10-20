@@ -1,20 +1,24 @@
-import { Tag, Form, InputNumber, Dropdown, Button, Space } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Tag, Form, InputNumber, Select } from 'antd';
+
+import { useInventoryStore } from '../store/inventory.store';
+import  { formatter } from '../../../utils/';
 
 export const InputsToSale = () => {
-  const items = [
-  { key: '1', label: 'Action 1' },
-  { key: '2', label: 'Action 2' },
-  ];
+  const {unitsOfMeasure} = useInventoryStore();
+  const [loadingSelect, setLoadingSelect] = useState(true);
+  const loadUnitOfMeasureAction = useInventoryStore((state) => state.loadUnitOfMeasureAction);
 
   useEffect(() => {
-
-    return () => {
-      console.log('limpiexaaa')
+    const loadUnits = async () => {
+      try {
+        await loadUnitOfMeasureAction();
+      } finally {
+        setLoadingSelect(false);
+      }
     };
-
-  }, []);
+    loadUnits();
+  }, [loadUnitOfMeasureAction]);
 
   return (
     <div className='flex flex-col gap-2'>
@@ -29,34 +33,46 @@ export const InputsToSale = () => {
         name='typeMeasure'
         label='Tipo de Metrica'
         className='font-bold'
-        rules={[{ required: true, message: 'Por favor ingrese el precio de venta' }]}
+        rules={[{ required: true, message: 'Requerido' }]}
       >
-        <Dropdown menu={{items}}>
-          <Button>
-            <Space>
-              UNI
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown>
+        <Select
+          placeholder='Seleccione'
+          size='small'
+          options={unitsOfMeasure}
+          loading={loadingSelect}
+        />
       </Form.Item>
 
       <Form.Item
         name='salePrice'
         label='Precio de venta'
         className='font-bold'
-        rules={[{ required: true, message: 'Por favor ingrese el precio de venta' }]}
+        rules={[{ required: true, message: 'Requerido'}]}
+        initialValue={0.0}
       >
-        <InputNumber size='small' type={'number'} placeholder='L. 0.0' />
+        <InputNumber<number>
+          min={0}
+          formatter={formatter}
+          parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          size='small'
+          placeholder='L. 0.0'
+        />
       </Form.Item>
 
       <Form.Item
         name='costPrice'
         label='Precio de compra'
         className='font-bold'
-        rules={[{ required: true, message: 'Por favor ingrese el precio de compra' }]}
+        rules={[{ required: true, message: 'Requerido' }]}
+        initialValue={0.0}
       >
-        <InputNumber style={{ width: '50%' }} min={1} size='small' type={'number'} placeholder='L. 0.0' />
+        <InputNumber<number>
+          min={0}
+          formatter={formatter}
+          parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          size='small'
+          placeholder='L. 0.0'
+        />
       </Form.Item>
       </div>
     
