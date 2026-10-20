@@ -30,8 +30,8 @@ export const FormNewProduct = ({ openModal, onClosed }: Props) => {
       <Modal
         open={openModal}
         title="Creación de nuevo producto"
-        okText="Create"
-        cancelText="Cancel"
+        okText="Crear"
+        cancelText="Cancelar"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={onClosed}
         destroyOnHidden

@@ -1,6 +1,6 @@
 import { Tag, Form, InputNumber } from 'antd';
 
-import { formatter } from '../../../utils';
+import { checkStock, formatterToStock } from '../../../utils';
 
 export const InputsToInventory = () => {
   return (
@@ -12,18 +12,18 @@ export const InputsToInventory = () => {
       </div>
       <div className='flex flex-row justify-center gap-2'>
         <Form.Item
-        name='stockQuantity'
-        label='Stock'
-        className='font-bold'
-        rules={[{ required: true, message: 'Please input the title of collection!' }]}
-        initialValue={0.0}
-      >
+          name='stockQuantity'
+          label='Stock'
+          className='font-bold'
+          rules={[{ required: true, validator: checkStock }]}
+          initialValue={0}
+        >
         <InputNumber<number>
+          formatter={formatterToStock}
           min={0}
-          formatter={formatter}
           parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
           size='small'
-          placeholder='L. 0.0'
+          placeholder='0.0'
         />
       </Form.Item>
       </div>      

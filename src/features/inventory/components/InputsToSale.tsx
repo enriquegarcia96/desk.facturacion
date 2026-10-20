@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Tag, Form, InputNumber, Select } from 'antd';
 
 import { useInventoryStore } from '../store/inventory.store';
-import  { formatter } from '../../../utils/';
+import  { checkPrice, formatter } from '../../../utils';
 
 export const InputsToSale = () => {
   const {unitsOfMeasure} = useInventoryStore();
@@ -47,13 +47,13 @@ export const InputsToSale = () => {
         name='salePrice'
         label='Precio de venta'
         className='font-bold'
-        rules={[{ required: true, message: 'Requerido'}]}
+        rules={[{ required: true, validator: checkPrice }]}
         initialValue={0.0}
       >
         <InputNumber<number>
           min={0}
           formatter={formatter}
-          parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          parser={(value) => value?.replace(/\L\s?|(,*)/g, '') as unknown as number}
           size='small'
           placeholder='L. 0.0'
         />
@@ -63,13 +63,13 @@ export const InputsToSale = () => {
         name='costPrice'
         label='Precio de compra'
         className='font-bold'
-        rules={[{ required: true, message: 'Requerido' }]}
-        initialValue={0.0}
+        rules={[{ required: true, validator: checkPrice }]}
+        initialValue={0}
       >
         <InputNumber<number>
           min={0}
           formatter={formatter}
-          parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          parser={(value) => value?.replace(/\L\s?|(,*)/g, '') as unknown as number}
           size='small'
           placeholder='L. 0.0'
         />

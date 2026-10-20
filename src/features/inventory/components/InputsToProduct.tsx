@@ -22,15 +22,16 @@ export const InputsToProduct = () => {
         </Form.Item>
         <Form.Item
           name="barCode"
-          label="Código de barra"
+          label="Código de barras"
           className='font-bold'
-          rules={[{ required: true, message: "Requerido" }]}
+          normalize={(value: string) => value?.replace(/\D/g, '')}
+          rules={[{ required: true, message: 'Ingresa el código de barras' }]}
         >
           <Input
-            min={0}
             size="small"
-            placeholder='Ej. 3462788'
-            type={'number'}
+            placeholder="Ej. 007351269"
+            maxLength={100}
+            inputMode="numeric"
           />
         </Form.Item>
       </div>
