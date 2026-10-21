@@ -17,4 +17,5 @@ pub struct ProductDto {
   pub bar_code: String,
   pub category_id: i32,
   pub type_measure: i32,
+  pub stock_quantity: Decimal
 }
