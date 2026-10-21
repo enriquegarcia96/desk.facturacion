@@ -30,6 +30,24 @@ export interface ICategories{
 }
 
 export interface ICategory {
-  idCategory: number;
   nameCategory: string;
+  idCategory: number;
+}
+
+export interface IProducts {
+  products: IProduct[];
+}
+
+export interface IProduct {
+  productName: string;
+  idProduct: number;
+}
+
+export interface IUnitsOfMeasure{
+  units: IUnitOfMeasure[];
+}
+
+export interface IUnitOfMeasure{
+  value: number;
+  label: string;
 }
