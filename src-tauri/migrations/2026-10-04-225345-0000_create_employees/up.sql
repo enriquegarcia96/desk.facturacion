@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE `roles` (
-  `id_role` int NOT NULL AUTO_INCREMENT,
+  `id_role` INT(11) NOT NULL AUTO_INCREMENT,
   `role_name` varchar(45) NOT NULL,
   `state` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_role`)
@@ -8,7 +8,7 @@ CREATE TABLE `roles` (
 
 CREATE TABLE `employees` (
   `employee_identity` varchar(13) NOT NULL,
-  `role_id` int NOT NULL,
+  `role_id` INT(11) NOT NULL,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(45) NOT NULL,
   `user_name` varchar(45) NOT NULL,
@@ -23,10 +23,10 @@ CREATE TABLE `employees` (
 
 
 CREATE TABLE `menus` (
-  `id_menu` int NOT NULL AUTO_INCREMENT,
+  `id_menu` INT(11) NOT NULL AUTO_INCREMENT,
   `title_menu` varchar(100) NOT NULL,
   `route` varchar(100) NOT NULL,
-  `parent_id` int DEFAULT NULL,
+  `parent_id` INT(11) DEFAULT NULL,
   `state` tinyint NOT NULL DEFAULT '1',
   `created_on` timestamp NULL DEFAULT NULL,
   `updated_on` timestamp NULL DEFAULT NULL,
@@ -37,11 +37,11 @@ CREATE TABLE `menus` (
 
 
 CREATE TABLE `permissions` (
-  `id_permission` int NOT NULL AUTO_INCREMENT,
+  `id_permission` INT(11) NOT NULL AUTO_INCREMENT,
   `created_on` timestamp NULL DEFAULT NULL,
   `updated_on` timestamp NULL DEFAULT NULL,
-  `menu_id` int NOT NULL,
-  `role_id` int NOT NULL,
+  `menu_id` INT(11) NOT NULL,
+  `role_id` INT(11) NOT NULL,
   PRIMARY KEY (`id_permission`),
   KEY `fk_menuid_idx` (`menu_id`),
   KEY `fk_roleid_idx` (`role_id`),

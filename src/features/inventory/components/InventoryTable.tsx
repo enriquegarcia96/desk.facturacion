@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, DeleteFilled, DeleteOutlined, DownOutlined, EditFilled, EditOutlined, ExclamationCircleOutlined, PlusOutlined, ShopTwoTone, SyncOutlined } from '@ant-design/icons';
-import { GetRef, TableColumnsType, TableProps, Flex, Tag, Divider } from 'antd';
+import { DeleteFilled, DownOutlined, EditFilled, PlusOutlined, ShopTwoTone} from '@ant-design/icons';
+import { GetRef, TableColumnsType, TableProps, Flex, Tag } from 'antd';
 import { Badge, Dropdown, Space, Table } from 'antd';
 
 import { useInventoryStore } from '../store/inventory.store';
 import { TableDataCategory, TableDataProduct } from '@interface/TableType';
-import { SlGameController } from 'react-icons/sl';
-import classNames from 'classnames';
+
 import { CategoryRequest } from '@interface/Request';
-import Actions from 'antd/es/transfer/Actions';
+
 import { FormNewProduct } from './FormNewProduct';
 
 // ===================== HOC AutoHeightTable =====================
@@ -135,15 +134,6 @@ const expandDataSource = Array.from({ length: 13 }).map<ExpandedDataType>(
   }),
 );
 
-const dataSource = Array.from({ length: 2 }).map<DataType>((_, i) => ({
-  key: i.toString(),
-  name: 'Screen',
-  platform: 'iOS',
-  version: '10.3.4.5654',
-  upgradeNum: 500,
-  creator: 'Jack',
-  createdAt: '2014-12-24 23:12:00',
-}));
 
 // ===================== Columnas sub-tabla =====================
 const expandColumns: TableColumnsType<ExpandedDataType> = [
@@ -229,7 +219,7 @@ const presets = [
   { status: 'error', icon: <DeleteFilled />, title: 'Eliminar', action: 'DELETE' },
 ];
 
-enum ActionsCrud{
+enum EnumActionsCrud{
   ADD = 'ADD',
   EDIT = 'EDIT',
   DELETE = 'DELETE'
@@ -241,6 +231,7 @@ enum ActionsCrud{
 export const InventoryTable = () => {
   const {loadCategoriesAction, categories, isLoadingCategories, loadProductsByCategoryAction, products} = useInventoryStore();
   const [open, setOpen] = useState(false);
+  const [categoryId, setCategoryId] = useState(0);
   
   useEffect(() => {
     loadCategoriesAction();
@@ -248,7 +239,7 @@ export const InventoryTable = () => {
 
   const columns2: TableColumnsType<TableDataCategory> = [
     {title: 'Nombre', dataIndex: 'nameCategory', key: 'nameCategory'},
-    {title: 'Acciones', key: 'operation', render: () => (
+    {title: 'Acciones', key: 'operation', render: (_: any, record: TableDataCategory) => (
       <>
       <Space size={'small'}>
         {variants.map((variant) => (
@@ -257,7 +248,7 @@ export const InventoryTable = () => {
           {presets.map(({ status, icon, title, action }) => (
             <Tag 
               className='cursor-pointer'
-              onClick={() => addNewProduct(action)}
+              onClick={() => actionsCrud(action, record.idCategory)}
               key={status}
               color={status}
               icon={icon}
@@ -285,9 +276,9 @@ export const InventoryTable = () => {
   }));
 
   const dataSource2 = categories.map<TableDataCategory>(({idCategory, nameCategory}) => ({
-    key: idCategory,
-    idCategory,
-    nameCategory
+    key: idCategory
+    ,idCategory
+    ,nameCategory
   }));
 
   const handleExpand = async (expanded: boolean, record: TableDataCategory) => {
@@ -317,25 +308,24 @@ export const InventoryTable = () => {
   />
   );
 
-  const addNewProduct = (action: string) => {
-    console.log('aquiiii')
-  switch (action) {
-    case ActionsCrud.ADD:
-      setOpen(true);
-      console.log(open)
-    break;
-
-    case ActionsCrud.EDIT:
-
-    break;
-
-    case ActionsCrud.DELETE:
-
-    break;  
-    default:
+  const actionsCrud = (action: string, categoryId: number) => {
+    switch (action) {
+      case EnumActionsCrud.ADD:
+        console.log('Antes de set', categoryId)
+        setCategoryId(categoryId);
+        console.log('despues del set', categoryId)
+        setOpen(true);
       break;
+
+      case EnumActionsCrud.EDIT:
+      break;
+
+      case EnumActionsCrud.DELETE:
+      break;  
+      default:
+        break;
+    }
   }
-}
 
 const onClosed = () => {
   setOpen(false);
@@ -344,7 +334,12 @@ const onClosed = () => {
 //si hago click a un nodo vacio, entonces, y luego a uno que si hay data, me copia que no hay data y vioce versa
   return (
     <>
-    <FormNewProduct openModal={open} onClosed={() => onClosed()} />
+      <FormNewProduct 
+        openModal={open}
+        typeAction={EnumActionsCrud.ADD}
+        onClosed={() => onClosed()}
+        categoryId={categoryId}
+      />
     <div
       style={{
         height: '100vh', // hace mas alto la tablanpx

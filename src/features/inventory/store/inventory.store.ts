@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import { ICategory, IProduct, IUnitOfMeasure } from "@interface/ApiResponse";
-import {CategoryRequest, NewCategoryRequest} from '@interface/Request';
+import {CategoryRequest, NewCategoryRequest, NewProductRequest} from '@interface/Request';
 import { InventoryService } from "../services/inventory.service";
 
 interface InventoryState {
@@ -13,11 +13,12 @@ interface InventoryState {
   messageNewCategory: string;
   isLoadingCategories: boolean;
 
-  loadUnitOfMeasureAction: () => Promise<void>;
   clearMessageNewCategory: () => void;
   loadCategoriesAction: () => Promise<void>;
+  loadUnitOfMeasureAction: () => Promise<void>;
   addNewCategoryAction: (request: NewCategoryRequest) => void;
   loadProductsByCategoryAction: (request: CategoryRequest) => void;
+  createNewProductAction: (request: NewProductRequest) => Promise<boolean>;
 };
 
 export const useInventoryStore = create<InventoryState>()((set, get) => ({
@@ -83,6 +84,21 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
       console.error(error);
       set({unitsOfMeasure: []});
     }
-  }
+  },
+
+  createNewProductAction: async (request: NewProductRequest) => {
+    try {
+      const {code} = await InventoryService.crudProduct(request);
+
+      if (code === 200){
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  },
   
 }))

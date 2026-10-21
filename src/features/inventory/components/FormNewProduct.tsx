@@ -1,29 +1,39 @@
 import { useState } from 'react';
-import {  Form, Input, Modal, Radio } from 'antd';
-import { InputsToProduct } from './InputsToProduct';
-import { InputsToSale } from './InputsToSale';
-import { InputsToInventory } from './InputsToInventory';
+import {  Form, Modal } from 'antd';
 
-interface Values {
-  title?: string;
-  description?: string;
-  modifier?: string;
-}
+import { InputsToSale } from './InputsToSale';
+import { InputsToProduct } from './InputsToProduct';
+import { InputsToInventory } from './InputsToInventory';
+import { NewProductRequest } from '@interface/Request';
+import { useInventoryStore } from '../store/inventory.store';
+import { useAuthStore } from '../../auth/store/auth.store';
+
 
 type Props = {
   openModal: boolean;
+  typeAction: string;
+  categoryId: number;
   onClosed: () => void;
 }
 
-export const FormNewProduct = ({ openModal, onClosed }: Props) => {
-  console.log('openModal', openModal);
+export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: Props) => {
+  const createNewProductAction = useInventoryStore((state) => state.createNewProductAction);
+  const modifyBy = useAuthStore((state) => state.user?.userName || 'sys');
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<Values>();
+  const [formValues, setFormValues] = useState<NewProductRequest>();
 
-  const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
+  const onCreate = async (values: NewProductRequest) => {
+    const request: NewProductRequest = {...values, typeAction, modifyBy, categoryId};
+    console.log('tipo deaccion ? ', request);
+    const isCorrect = await createNewProductAction(request);
+
+    if (isCorrect) {
+      onClosed();
+      //mensja al usuario para decuirle volver a intenetarlo 
+      //para la insercion
+    }
+
     setFormValues(values);
-    onClosed();
   };
 
   return (

@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-import {NewCategoryRequest, CategoryRequest} from '@interface/Request';
+import {NewCategoryRequest, CategoryRequest, NewProductRequest} from '@interface/Request';
 import { IApiResponse, ICategories, IProducts, IUnitsOfMeasure } from "@interface/ApiResponse";
 
 export class InventoryService {
@@ -19,5 +19,9 @@ export class InventoryService {
 
   static getUnitsOfMeasure = async(): Promise<IApiResponse<IUnitsOfMeasure>> => {
     return invoke<IApiResponse<IUnitsOfMeasure>>('command_get_units', {});
+  }
+  
+  static crudProduct = async(request: NewProductRequest): Promise<IApiResponse<any>> =>{
+    return invoke<IApiResponse<any>>('command_crud_product', {request});
   }
 }
