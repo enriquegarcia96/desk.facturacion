@@ -13,7 +13,7 @@ export class InventoryService {
     return invoke<IApiResponse<any>>('command_new_category', {request});
   }
 
-  static getProductsByCategory = async (request: CategoryRequest): Promise<IApiResponse<IProducts>> => {
+  static getProductsByIdCategory = async (request: CategoryRequest): Promise<IApiResponse<IProducts>> => {
     return invoke<IApiResponse<IProducts>>('command_get_products', {request});
   }
 

@@ -21,20 +21,28 @@ use crate::infrastructure::db::connections::mysql::mysql_connection::{DbPool};
 pub async fn get_products_by_id_category(state: State<'_, DbPool>, request: CategoryRequest) -> Result<ApiResponse, ApiResponse> {
   trace!("#get_products_by_id_category");
   trace!(">>> Request");
-  use crate::schema::products::dsl::{products, category_id, id_product, product_name};
+  use crate::schema::inventories::dsl::{inventories, product_id, stock_quantity};
+  use crate::schema::products::dsl::{products, category_id, id_product, product_name, sale_price};
 
   let mut conn = state.get().map_err(|e| ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e)))?;
 
   let result_products = products
+    .inner_join(inventories.on(product_id.eq(id_product)))
     .filter(category_id.eq(request.id_category))
-    .select((id_product, product_name))
+    .select((id_product, product_name, stock_quantity, sale_price))
     .load::<ProductsDto>(&mut conn)
-    .map_err(|e| ApiResponse::new_error(format!("ERROR"), 404, format!("Error al consultar las categorias {:?}", e)))?;
+    .map_err(|e| {
+      error!("Error al obtener la lista de productos {:?}", e);
+      ApiResponse::new_error(
+        "ERROR".to_string(),
+        500,
+        "No se pudo obtener la lista de productos asociados".to_string(),
+        )
+      })?;
 
     if result_products.is_empty(){
       return Ok(ApiResponse::new_success(format!("OK"), Constants::OK, format!("No hay productos asociados"), json!({"products": []})));
-    }
-    
+    }    
 
   Ok(ApiResponse::new_success(format!("OK"), Constants::OK, format!("Lista de productos"), json!({"products": result_products})))
 }
@@ -99,8 +107,6 @@ fn insert_product(conn: &mut PooledConnection<ConnectionManager<MysqlConnection>
         "No se pudo obtener el ID del nuevo producto".to_string(),
       )
     })?;
-
-  trace!("# nuevo id {:?}", id_new_product);
 
   let new_inventory: NewInventory = NewInventory { 
     stock_quantity: request.stock_quantity

@@ -27,4 +27,5 @@ export interface NewProductRequest {
   typeAction: string;
   productName: string;
   typeMeasure: number;
+  stockQuantity: number;
 }

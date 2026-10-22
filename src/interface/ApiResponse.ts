@@ -41,6 +41,8 @@ export interface IProducts {
 export interface IProduct {
   productName: string;
   idProduct: number;
+  salePrice: number;
+  stock: number;
 }
 
 export interface IUnitsOfMeasure{

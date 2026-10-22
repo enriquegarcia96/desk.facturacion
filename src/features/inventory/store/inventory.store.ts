@@ -10,6 +10,8 @@ interface InventoryState {
   unitsOfMeasure: IUnitOfMeasure[];
 
   newCategoryLoad: boolean;
+  newProductLoad: boolean;
+  isLoadingProducts: boolean;
   messageNewCategory: string;
   isLoadingCategories: boolean;
 
@@ -17,7 +19,7 @@ interface InventoryState {
   loadCategoriesAction: () => Promise<void>;
   loadUnitOfMeasureAction: () => Promise<void>;
   addNewCategoryAction: (request: NewCategoryRequest) => void;
-  loadProductsByCategoryAction: (request: CategoryRequest) => void;
+  loadProductsByCategoryAction: (request: CategoryRequest) => Promise<void>;
   createNewProductAction: (request: NewProductRequest) => Promise<boolean>;
 };
 
@@ -28,6 +30,8 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
 
   messageNewCategory: '',
   newCategoryLoad: false,
+  newProductLoad: false,
+  isLoadingProducts: false,
   isLoadingCategories: false,
 
   loadCategoriesAction: async () => {
@@ -66,13 +70,19 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   clearMessageNewCategory: () => set({messageNewCategory: ''}),
 
   loadProductsByCategoryAction: async (request: CategoryRequest) => {
+    set({isLoadingProducts: true, products: []});
+
     try {
-      const {data} = await InventoryService.getProductsByCategory(request);
-      console.log(data);
+      const {data, code} = await InventoryService.getProductsByIdCategory(request);
+      if (code != 200 ) {
+        set({products: []});
+      }
       set({products: data.products});
     } catch (error) {
       console.error(error);
-      set({products: []})
+      set({products: []});
+    }finally{
+      set({isLoadingProducts: false});
     }
   },
 
@@ -88,12 +98,15 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
 
   createNewProductAction: async (request: NewProductRequest) => {
     try {
-      const {code} = await InventoryService.crudProduct(request);
-
-      if (code === 200){
+      const res = await InventoryService.crudProduct(request);      
+      if (res.code === 200){
+        const requestCategory: CategoryRequest = {
+          idCategory: request.categoryId,
+          categoryName: ""
+        };
+        await get().loadProductsByCategoryAction(requestCategory);
         return true;
       }
-
       return false;
     } catch (error) {
       console.error(error);

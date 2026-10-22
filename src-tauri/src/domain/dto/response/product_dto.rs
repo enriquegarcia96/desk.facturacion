@@ -1,4 +1,5 @@
 use diesel::deserialize::Queryable;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Queryable)]
@@ -6,6 +7,6 @@ use serde::{Deserialize, Serialize};
 pub struct ProductsDto{
   pub id_product: i32,
   pub product_name: String,
-  //pub stock: i32 // cambiar a flotante
-  //pub sale_price: i32
+  pub stock: Decimal,
+  pub sale_price: Decimal
 }

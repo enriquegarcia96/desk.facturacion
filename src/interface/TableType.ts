@@ -4,6 +4,8 @@ export interface TableDataCategory {
 }
 
 export interface TableDataProduct {
+  stock: number;
   idProduct: number;
+  salePrice: number;
   productName: string;
 }

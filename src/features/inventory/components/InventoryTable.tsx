@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { DeleteFilled, DownOutlined, EditFilled, PlusOutlined, ShopTwoTone} from '@ant-design/icons';
+import { useEffect, useRef, useState } from 'react';
+
+import { Button, Input, InputRef, Space, Table, TableColumnType } from 'antd';
 import { GetRef, TableColumnsType, TableProps, Flex, Tag } from 'antd';
-import { Badge, Dropdown, Space, Table } from 'antd';
-
-import { useInventoryStore } from '../store/inventory.store';
-import { TableDataCategory, TableDataProduct } from '@interface/TableType';
-
-import { CategoryRequest } from '@interface/Request';
+import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
 
 import { FormNewProduct } from './FormNewProduct';
+import { CategoryRequest } from '@interface/Request';
+import { useInventoryStore } from '../store/inventory.store';
+import { TableDataCategory, TableDataProduct } from '@interface/TableType';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+
 
 // ===================== HOC AutoHeightTable =====================
 const measureClassNames = {
@@ -101,116 +102,15 @@ const AutoHeightTable = <RecordType extends object>(
   );
 };
 
-// ===================== Tipos =====================
-interface ExpandedDataType {
-  key: React.Key;
-  date: string;
-  name: string;
-  upgradeNum: string;
-}
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  platform: string;
-  version: string;
-  upgradeNum: number;
-  creator: string;
-  createdAt: string;
-}
+// ===================== Columnas sub-tabla =====================// Source - https://stackoverflow.com/a/75491179
+// Posted by Brice Zele, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-10-21, License - CC BY-SA 4.0
 
-// ===================== Datos =====================
-const items = [
-  { key: '1', label: 'Action 1' },
-  { key: '2', label: 'Action 2' },
-];
+//onFilter: (value, record) => record.idea?.includes(value) === 0
 
-const expandDataSource = Array.from({ length: 13 }).map<ExpandedDataType>(
-  (_, i) => ({
-    key: i.toString(),
-    date: '2014-12-24 23:12:00',
-    name: 'This is production name',
-    upgradeNum: 'Upgraded: 56',
-  }),
-);
+// { title: 'Name', dataIndex: 'name', key: 'name', filters: [{text: 'Cola', value: 'coca'}, {text: 'pollo', value: 'polo2'}], onFilter: (value, record) => record.name.indexOf(value as string) === 0 },
 
-
-// ===================== Columnas sub-tabla =====================
-const expandColumns: TableColumnsType<ExpandedDataType> = [
-  { title: 'Date', dataIndex: 'date', key: 'date' },
-  { title: 'Name', dataIndex: 'name', key: 'name', filters: [{text: 'Cola', value: 'coca'}, {text: 'pollo', value: 'polo2'}], onFilter: (value, record) => record.name.indexOf(value as string) === 0 },
-  {
-    title: 'Status',
-    key: 'state',
-    render: () => <Badge status="success" text="Finished" />,
-  },
-  { title: 'Upgrade Status', dataIndex: 'upgradeNum', key: 'upgradeNum' },
-  {
-    title: 'Action',
-    key: 'operation',
-    render: () => (
-      <Space size="medium">
-        <a>Pause</a>
-        <a>Stop</a>
-        <Dropdown menu={{ items }}>
-          <a>
-            More <DownOutlined />
-          </a>
-        </Dropdown>
-      </Space>
-    ),
-  },
-];
-
-const expandColumns2: TableColumnsType<TableDataProduct> = [
-  {title: 'Producto', dataIndex: 'productName', key: 'productName'},
-  { title: 'Date', dataIndex: 'date', key: 'date' },
-  //{ title: 'Name', dataIndex: 'name', key: 'name', filters: [{text: 'Cola', value: 'coca'}, {text: 'pollo', value: 'polo2'}], onFilter: (value, record) => record.name.indexOf(value as string) === 0 },
-  {
-    title: 'Status',
-    key: 'state',
-    render: () => <Badge status="success" text="Finished" />,
-  },
-  { title: 'Upgrade Status', dataIndex: 'upgradeNum', key: 'upgradeNum' },
-  {
-    title: 'Action',
-    key: 'operation',
-    render: () => (
-      <Space size="medium">
-        <a>Pause</a>
-        <a>Stop</a>
-        <Dropdown menu={{ items }}>
-          <a>
-            More <DownOutlined />
-          </a>
-        </Dropdown>
-      </Space>
-    ),
-  },
-];
-
-// ===================== Columnas tabla padre =====================
-const columns: TableColumnsType<DataType> = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  { title: 'Platform', dataIndex: 'platform', key: 'platform' },
-  { title: 'Version', dataIndex: 'version', key: 'version' },
-  { title: 'Upgraded', dataIndex: 'upgradeNum', key: 'upgradeNum' },
-  { title: 'Creator', dataIndex: 'creator', key: 'creator' },
-  { title: 'Date', dataIndex: 'createdAt', key: 'createdAt' },
-  { title: 'Action', key: 'operation', render: () => <a>Publish</a> },
-];
-
-// ===================== Sub-tabla (el "dub menu") con scroll fijo =====================
-const expandedRowRender = () => (
-  <Table<ExpandedDataType>
-    columns={expandColumns}
-    dataSource={expandDataSource}
-    pagination={false}
-    scroll={{ y: 200, x: 'max-content' }}   // 👈 scroll fijo del hijo
-    size="small"
-    showSorterTooltip={{target: 'sorter-icon'}}
-  />
-);
 
 const variants = ['solid'] as const;
 const presets = [
@@ -225,13 +125,146 @@ enum EnumActionsCrud{
   DELETE = 'DELETE'
 }
 
-
-
-// ===================== Componente principal =====================
 export const InventoryTable = () => {
-  const {loadCategoriesAction, categories, isLoadingCategories, loadProductsByCategoryAction, products} = useInventoryStore();
+  const {loadCategoriesAction
+    , categories
+    , isLoadingCategories
+    , loadProductsByCategoryAction
+    , products
+    , isLoadingProducts} = useInventoryStore();
   const [open, setOpen] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<InputRef>(null);
+
+
+  ///////
+
+  type DataIndex = keyof TableDataProduct;
+const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataProduct> => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText((selectedKeys as string[])[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        .toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase()),
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) {
+          setTimeout(() => searchInput.current?.select(), 100);
+        }
+      },
+    },
+    render: (text) =>
+      // nop me devve cuando le quito el buscador
+      searchedColumn === dataIndex ? (
+        searchText
+        /**
+         *  <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+         */
+      ) : (
+        text
+      ),
+  });
+
+  //////////
+
+
+  const expandColumns2: TableColumnsType<TableDataProduct> = [
+  {title: 'Producto', dataIndex: 'productName', key: 'productName', ...getColumnSearchProps('productName') },
+  { title: 'Stock', dataIndex: 'stock', key: 'stock', render: (_: any, record: TableDataProduct) => <Tag  key={'filled'} color={record.stock < 4 ? 'volcano' : "green"}>{record.stock}</Tag>},
+  {title: 'Precio', dataIndex:'salePrice', key: 'salePrice', render: (value) => `L. ${value ?? 0} p/u`},  
+  {
+    title: 'Edición',
+    key: 'operation',
+    render: () => (
+      <Space size='small'>
+        <a>Editar</a>
+        <a>Eliminar</a>
+      </Space>
+    ),
+  },
+];
+
+
+const handleSearch = (
+    selectedKeys: string[],
+    confirm: FilterDropdownProps['confirm'],
+    dataIndex: DataIndex,
+  ) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters: () => void) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  
+
+  //////
   
   useEffect(() => {
     loadCategoriesAction();
@@ -265,16 +298,6 @@ export const InventoryTable = () => {
     )}
   ];
 
-  const dataSource = Array.from({ length: 2 }).map<DataType>((_, i) => ({
-    key: i.toString(),
-    name: 'Screen',
-    platform: 'iOS',
-    version: '10.3.4.5654',
-    upgradeNum: 500,
-    creator: 'Jack',
-    createdAt: '2014-12-24 23:12:00',
-  }));
-
   const dataSource2 = categories.map<TableDataCategory>(({idCategory, nameCategory}) => ({
     key: idCategory
     ,idCategory
@@ -282,8 +305,7 @@ export const InventoryTable = () => {
   }));
 
   const handleExpand = async (expanded: boolean, record: TableDataCategory) => {
-    console.log('aquiiiii expnadibee ', expanded)
-    console.log('recors ', record);
+    setExpandedRowKeys(expanded ? [record.idCategory] : []);
     const request: CategoryRequest = {
       idCategory: record.idCategory,
       categoryName: record.nameCategory
@@ -291,29 +313,36 @@ export const InventoryTable = () => {
     await loadProductsByCategoryAction(request);
   }
 
-  const expandDataSource2 = products.map<TableDataProduct>(({idProduct, productName}) => ({
+  const expandDataSource2 = products.map<TableDataProduct>(({idProduct, productName, salePrice, stock}) => ({
     key: idProduct,
     idProduct, 
-    productName
+    productName,
+    salePrice,
+    stock
   }))
 
   const expandedRowRender2 = () => (
-  <Table<TableDataProduct>
-    columns={expandColumns2}
-    dataSource={expandDataSource2}
-    pagination={false}
-    scroll={{ y: 200, x: 'max-content' }}   // 👈 scroll fijo del hijo
-    size="small"
-    showSorterTooltip={{target: 'sorter-icon'}}
-  />
+    <Table<TableDataProduct>
+      className='capitalize'
+      columns={expandColumns2}
+      dataSource={expandDataSource2}
+      pagination={false}
+      scroll={{ y: 200, x: 'max-content' }}// 👈 scroll fijo del hijo
+      size="small"
+      loading={{
+        spinning: isLoadingProducts
+      }}
+      showSorterTooltip={{target: 'sorter-icon'}}
+    />
   );
 
-  const actionsCrud = (action: string, categoryId: number) => {
+  const actionsCrud = async (action: string, categoryId: number) => {
+    const request: CategoryRequest = {idCategory: categoryId, categoryName: ""};
     switch (action) {
       case EnumActionsCrud.ADD:
-        console.log('Antes de set', categoryId)
         setCategoryId(categoryId);
-        console.log('despues del set', categoryId)
+        setExpandedRowKeys([categoryId]);
+        await loadProductsByCategoryAction(request);
         setOpen(true);
       break;
 
@@ -327,11 +356,10 @@ export const InventoryTable = () => {
     }
   }
 
-const onClosed = () => {
-  setOpen(false);
-}
+  const onClosed = () => {
+    setOpen(false);
+  }
 
-//si hago click a un nodo vacio, entonces, y luego a uno que si hay data, me copia que no hay data y vioce versa
   return (
     <>
       <FormNewProduct 
@@ -356,7 +384,11 @@ const onClosed = () => {
       <div style={{ height: 450, minHeight: 0 }}>
         <AutoHeightTable<TableDataCategory>
           columns={columns2}
-          expandable={{ onExpand: handleExpand, expandedRowRender: expandedRowRender2 }}
+          expandable={{ 
+            onExpand: handleExpand
+            ,expandedRowRender: expandedRowRender2
+            ,expandedRowKeys
+          }}
           dataSource={dataSource2}
           size='small'
           loading={{

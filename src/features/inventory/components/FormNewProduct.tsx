@@ -25,9 +25,9 @@ export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: 
   const onCreate = async (values: NewProductRequest) => {
     const request: NewProductRequest = {...values, typeAction, modifyBy, categoryId};
     console.log('tipo deaccion ? ', request);
-    const isCorrect = await createNewProductAction(request);
+    const isCreateCorrect: boolean = await createNewProductAction(request);
 
-    if (isCorrect) {
+    if (isCreateCorrect) {
       onClosed();
       //mensja al usuario para decuirle volver a intenetarlo 
       //para la insercion
