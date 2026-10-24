@@ -24,3 +24,32 @@ export interface IAuthEmployee {
   roleName: string;
   state: number;
 }
+
+export interface ICategories{
+  categories: ICategory[];
+}
+
+export interface ICategory {
+  nameCategory: string;
+  idCategory: number;
+}
+
+export interface IProducts {
+  products: IProduct[];
+}
+
+export interface IProduct {
+  productName: string;
+  idProduct: number;
+  salePrice: number;
+  stock: number;
+}
+
+export interface IUnitsOfMeasure{
+  units: IUnitOfMeasure[];
+}
+
+export interface IUnitOfMeasure{
+  value: number;
+  label: string;
+}

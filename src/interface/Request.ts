@@ -7,3 +7,25 @@ export interface InfoEmployeeRequest{
   userName: string;
   identityEmployee: string;
 }
+
+export interface NewCategoryRequest {
+  nameCategory: string;
+  userName: string;
+}
+
+export interface CategoryRequest {
+  idCategory: number;
+  categoryName: string;
+}
+
+export interface NewProductRequest {
+  barCode: string;
+  modifyBy: string;
+  salePrice: number;
+  costPrice: number;
+  categoryId: number;
+  typeAction: string;
+  productName: string;
+  typeMeasure: number;
+  stockQuantity: number;
+}

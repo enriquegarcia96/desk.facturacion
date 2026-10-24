@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE `categories` (
-  `id_category` int NOT NULL AUTO_INCREMENT,
+  `id_category` INT(11) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(100) NOT NULL,
   `modify_by` varchar(45) NOT NULL DEFAULT 'sys',
   `created_on` timestamp NULL DEFAULT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE `products` (
-  `id_product` int NOT NULL AUTO_INCREMENT,
-  `category_id` int NOT NULL,
+  `id_product` INT(11) NOT NULL AUTO_INCREMENT,
+  `category_id` INT(11) NOT NULL,
   `product_name` varchar(100) NOT NULL,
   `modify_by` varchar(100) NOT NULL,
   `created_on` timestamp NULL DEFAULT NULL,
