@@ -1,3 +1,4 @@
+import { IApiResponse } from './../../../interface/ApiResponse';
 import { create } from "zustand";
 
 import { ICategory, IProduct, IUnitOfMeasure } from "@interface/ApiResponse";
@@ -13,9 +14,11 @@ interface InventoryState {
   newProductLoad: boolean;
   isLoadingProducts: boolean;
   messageNewCategory: string;
+  messageNewProduct: string;
   isLoadingCategories: boolean;
 
   clearMessageNewCategory: () => void;
+  clearMessageNewProduct: () => void;
   loadCategoriesAction: () => Promise<void>;
   loadUnitOfMeasureAction: () => Promise<void>;
   addNewCategoryAction: (request: NewCategoryRequest) => void;
@@ -29,6 +32,7 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   unitsOfMeasure: [],
 
   messageNewCategory: '',
+  messageNewProduct: '',
   newCategoryLoad: false,
   newProductLoad: false,
   isLoadingProducts: false,
@@ -68,6 +72,7 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   },
 
   clearMessageNewCategory: () => set({messageNewCategory: ''}),
+  clearMessageNewProduct: () => set({messageNewProduct: ''}),
 
   loadProductsByCategoryAction: async (request: CategoryRequest) => {
     set({isLoadingProducts: true, products: []});
@@ -97,19 +102,28 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
   },
 
   createNewProductAction: async (request: NewProductRequest) => {
+    set({newProductLoad: false, messageNewProduct: ''});
     try {
-      const res = await InventoryService.crudProduct(request);      
-      if (res.code === 200){
+      const {code, message} = await InventoryService.crudProduct(request);      
+      if (code === 200){
         const requestCategory: CategoryRequest = {
           idCategory: request.categoryId,
-          categoryName: ""
+          categoryName: ''
         };
         await get().loadProductsByCategoryAction(requestCategory);
+        set({newProductLoad: true, messageNewProduct: message});
         return true;
       }
       return false;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
+      if (error instanceof Error) {
+        console.error(error);
+        set({messageNewProduct: error.message, newProductLoad: false});
+      }else if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'){
+        console.error(error);
+        set({messageNewProduct: error.message, newProductLoad: false});
+      }
       return false;
     }
   },

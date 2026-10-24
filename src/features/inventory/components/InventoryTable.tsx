@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Input, InputRef, Space, Table, TableColumnType } from 'antd';
+import { Button, Input, InputRef, Space, Table, TableColumnType, Tooltip } from 'antd';
 import { GetRef, TableColumnsType, TableProps, Flex, Tag } from 'antd';
-import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
+import { DeleteFilled, DeleteTwoTone, EditFilled, EditOutlined, EditTwoTone, HeartTwoTone, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
 
 import { FormNewProduct } from './FormNewProduct';
 import { CategoryRequest } from '@interface/Request';
@@ -140,11 +140,8 @@ export const InventoryTable = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
 
-
-  ///////
-
   type DataIndex = keyof TableDataProduct;
-const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataProduct> => ({
+  const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataProduct> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
@@ -210,25 +207,13 @@ const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataPr
         }
       },
     },
-    render: (text) =>
-      // nop me devve cuando le quito el buscador
+    render: (text: string) =>
       searchedColumn === dataIndex ? (
-        searchText
-        /**
-         *  <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ''}
-        />
-         */
-      ) : (
-        text
-      ),
+        text ? text.toString() : ''
+        ) : (
+          text
+        ),
   });
-
-  //////////
-
 
   const expandColumns2: TableColumnsType<TableDataProduct> = [
   {title: 'Producto', dataIndex: 'productName', key: 'productName', ...getColumnSearchProps('productName') },
@@ -239,13 +224,20 @@ const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataPr
     key: 'operation',
     render: () => (
       <Space size='small'>
-        <a>Editar</a>
-        <a>Eliminar</a>
+        <Tooltip title='Editar'>
+          <EditFilled style={{color: 'blue'}} onClick={ss} />
+        </Tooltip>
+        <Tooltip title='Eliminar'>
+          <DeleteFilled style={{color: 'red'}} onClick={ss} />
+        </Tooltip>
       </Space>
     ),
   },
 ];
 
+const ss = () => {
+
+}
 
 const handleSearch = (
     selectedKeys: string[],
