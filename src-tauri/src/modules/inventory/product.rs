@@ -82,12 +82,12 @@ pub async fn crud_product(
     //ActionsCrud::EDIT => update_product(conn, request),
     //ActionsCrud::DELETE => delete_product(conn, request),
     _ => {
-      return Ok(ApiResponse::new_success(
-        format!("OK"),
-        Constants::OK,
-        format!("Opción invalida"),
-        json!({}),
-      ))
+    return Ok(ApiResponse::new_success(
+    format!("OK"),
+    Constants::OK,
+    format!("Opción invalida"),
+    json!({}),
+    ))
     }
   }?;
 
@@ -126,7 +126,7 @@ fn insert_product(
           ApiResponse::new_error(
           format!("ERROR"),
           Constants::UNAUTHORIZED,
-          format!("Usuario o contraseña incorrectos {:?}", e),
+          format!("error al buscar el producto {:?}", e),
           )
       })?;
 
@@ -174,12 +174,12 @@ fn insert_product(
       .values(new_inventory)
       .execute(conn)
       .map_err(|e: diesel::result::Error| {
-          error!("Error al insertar en inventories: {:?}", e);
-          ApiResponse::new_error(
-              "ERROR".to_string(),
-              500,
-              "No se pudo crear el nuevo ventario".to_string(),
-          )
+        error!("Error al insertar en inventories: {:?}", e);
+        ApiResponse::new_error(
+            "ERROR".to_string(),
+            500,
+            "No se pudo crear el nuevo ventario".to_string(),
+        )
       })?;
 
   Ok(ApiResponse::new_success(
