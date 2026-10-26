@@ -1,4 +1,3 @@
-import { IApiResponse } from './../../../interface/ApiResponse';
 import { create } from "zustand";
 
 import { ICategory, IProduct, IUnitOfMeasure } from "@interface/ApiResponse";

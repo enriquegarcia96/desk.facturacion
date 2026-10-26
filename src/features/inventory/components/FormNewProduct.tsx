@@ -1,3 +1,5 @@
+import { lazy } from 'react';
+
 import {  Form, Modal } from 'antd';
 
 import { InputsToSale } from './InputsToSale';
@@ -6,7 +8,8 @@ import { NewProductRequest } from '@interface/Request';
 import { InputsToInventory } from './InputsToInventory';
 import { useAuthStore } from '../../auth/store/auth.store';
 import { useInventoryStore } from '../store/inventory.store';
-import { Message } from '../../../components/shared/Message/Message';
+
+const Message = lazy(() => import('../../../components/shared/Message/Message'));
 
 type Props = {
   openModal: boolean;
@@ -22,7 +25,6 @@ export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: 
 
   const onCreate = async (values: NewProductRequest) => {
     const request: NewProductRequest = {...values, typeAction, modifyBy, categoryId};
-    console.log('tipo deaccion ? ', request);
     const isCreateCorrect: boolean = await createNewProductAction(request);
 
     if (!isCreateCorrect) {
