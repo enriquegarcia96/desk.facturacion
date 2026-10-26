@@ -53,3 +53,10 @@ export interface IUnitOfMeasure{
   value: number;
   label: string;
 }
+export interface IRoles{
+  roles: IRole[];
+}
+export interface IRole{
+  value: number;
+  label: string;
+}
