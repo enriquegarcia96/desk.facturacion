@@ -5,9 +5,9 @@ import {
   IoHeartOutline,
   IoSpeedometerOutline,
   IoListOutline,
-  IoFileTrayFullOutline,
   IoFastFoodOutline,
-  IoBasketOutline
+  IoBasketOutline,
+  IoPeopleOutline  
 } from "react-icons/io5";
 
 import "./SideMenu.css";
@@ -25,7 +25,7 @@ export const SideMenu = () => {
   const defaultMenu: IMenu[] = [  
     { titleMenu: 'Dashboard', subTitle: 'Visualizar data', route: '/panel', Icon: IoSpeedometerOutline },
     { titleMenu: 'Inventario', subTitle: 'Actualización', route: '/panel/inventario', Icon: IoBasketOutline  },
-    { titleMenu: 'Categorias', subTitle: 'Inventario de Categorias', route: '/panel/inventario/categorias', Icon: IoFileTrayFullOutline  },
+    { titleMenu: 'Usuarios', subTitle: 'Editar o crear', route: '/panel/usuarios', Icon: IoPeopleOutline   },
     { titleMenu: 'Productos', subTitle: 'Inventario de Productos', route: '/panel/inventario/productos', Icon: IoFastFoodOutline },
     { titleMenu: 'Tareas', subTitle: 'Listado de tareas', route: '/dashboard/tasks', Icon: IoListOutline },
     { titleMenu: 'Boda', subTitle: 'Invitados a la boda', route: '/dashboard/wedding-invitation', Icon: IoHeartOutline },
