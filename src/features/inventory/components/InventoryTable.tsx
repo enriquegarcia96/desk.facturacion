@@ -222,10 +222,10 @@ export const InventoryTable = () => {
     render: () => (
       <Space size='small'>
         <Tooltip title='Editar'>
-          <EditFilled style={{color: 'blue'}} onClick={ss} />
+          <EditFilled style={{color: 'blue', fontSize: 17}} onClick={ss} />
         </Tooltip>
         <Tooltip title='Eliminar'>
-          <DeleteFilled style={{color: 'red'}} onClick={ss} />
+          <DeleteFilled style={{color: 'red', fontSize: 17}} onClick={ss} />
         </Tooltip>
       </Space>
     ),
