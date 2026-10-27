@@ -48,7 +48,6 @@ export interface IProduct {
 export interface IUnitsOfMeasure{
   units: IUnitOfMeasure[];
 }
-
 export interface IUnitOfMeasure{
   value: number;
   label: string;
@@ -59,4 +58,13 @@ export interface IRoles{
 export interface IRole{
   value: number;
   label: string;
+}
+export interface IEmployees{
+  employees: IEmployee[];
+}
+export interface IEmployee{
+  role: string;
+  state: string;
+  fullName: string;
+  userName: string;
 }
