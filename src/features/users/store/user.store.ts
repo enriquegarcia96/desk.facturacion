@@ -1,21 +1,25 @@
 import { create } from "zustand";
 
-import { IRole } from "@interface/ApiResponse";
+import { IEmployee, IRole } from "@interface/ApiResponse";
 import { NewUserRequest } from "@interface/Request";
 import { UserService } from "../services/user.service";
 
 interface UserState{
   message: string;
+  isLoadData: boolean;
   newEmployeeCreate: boolean;
+
 
   clearMessage: () => void;
   loadRolesAction: () => Promise<IRole[]>;
+  getEmployeesAction: () => Promise<IEmployee[]>;
   addNewUserAction: (request: NewUserRequest) =>  Promise<boolean>;
 }
 
 export const useUserStore = create<UserState>()((set) => ({
   message: '',
   newEmployeeCreate: false,
+  isLoadData: false,
 
   addNewUserAction: async (request: NewUserRequest): Promise<boolean> => {
     set({newEmployeeCreate: false, message: ''});
@@ -52,6 +56,23 @@ export const useUserStore = create<UserState>()((set) => ({
     }
   },
 
-  clearMessage: () => set({message: ''})
+  clearMessage: () => set({message: ''}),
+
+  getEmployeesAction: async (): Promise<IEmployee[]> => {
+    set({isLoadData: true, message: ''});
+
+    try {
+      const {code, data, message} = await UserService.getEmployees();
+      console.log(data)
+      if (code != 200) {
+        
+      }   
+      set({message: message, isLoadData: false})
+      return data.employees;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
   
 }))

@@ -1,92 +1,110 @@
+import { useEffect, useState } from 'react';
 
-import { Flex, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
+import { IoCreateSharp } from "react-icons/io5";
+import { Space, Switch, Table, Tag, Tooltip } from 'antd';
 
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
+import { useUserStore } from '../store/user.store';
+import { IEmployee } from '@interface/ApiResponse';
+import {TableDataEmployee} from '@interface/TableType';
+import { EnumState } from '@interface/EnumActions';
 
-const columns: TableProps<DataType>['columns'] = [
+
+const columns: TableProps<TableDataEmployee>['columns'] = [
   {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a>{text}</a>,
+    title: 'Nombre completo',
+    dataIndex: 'fullName',
+    key: 'fullName',
+    render: (text) => <p className='font-semibold'>{text}</p>,
   },
   {
-    title: 'Age',
-    dataIndex: 'age',
-    key: 'age',
-  },
-  {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-  },
-  {
-    title: 'Tags',
-    key: 'tags',
-    dataIndex: 'tags',
-    render: (_, { tags }) => (
-      <Flex gap="small" align="center" wrap>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'kawaii') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </Flex>
+    title: 'Roles',
+    dataIndex: 'role',
+    key: 'role',
+    render: (_: any, record: TableDataEmployee, index: number) => (
+      <>
+        <Tag
+          className='font-semibold'
+          variant='outlined'
+          color={record.role === 'administrador' ? 'cyan' : 'purple'}
+          key={index}
+        >
+          {record.role}
+        </Tag>
+      </>
     ),
   },
   {
-    title: 'Action',
+    title: 'Estado',
+    dataIndex: 'state',
+    key: 'state',
+    render: (_: any, record: TableDataEmployee, index: number) => (
+      <>
+        <Switch
+          className='font-semibold'
+          checkedChildren={EnumState.ACTIVO}
+          unCheckedChildren={EnumState.INACTIVO}
+          //checked={record.state === EnumState.ACTIVO}
+          defaultChecked={record.state === EnumState.ACTIVO}
+          onChange={onChange}
+        />
+      </>
+    ),
+  },
+  {
+    title: 'Usuario',
+    key: 'userName',
+    dataIndex: 'userName',
+    render: (_: any, record: TableDataEmployee, index: number) => (
+      <p className='font-semibold' key={index}>
+        {record.userName}
+      </p>
+    ),
+  },
+  {
+    title: 'Acciones',
     key: 'action',
-    render: (_, record) => (
-      <Space size="medium">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
+    render: (_, record: TableDataEmployee) => (
+      <Space size='small'>
+        <Tooltip title={'Editar'} >
+          <IoCreateSharp 
+            size={20} 
+            onClick={ss} 
+            className='cursor-pointer'
+            color='red'
+          />
+        </Tooltip>
+        
       </Space>
     ),
   },
 ];
 
-const data: DataType[] = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['kawaii'],
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-];
+const onChange = (checked: boolean) => {
+  console.log(`switch to ${checked}`);
+};
 
-export const TableUsers = () => {
-  return (
-    <Table<DataType> columns={columns} dataSource={data} />
-  )
+const ss = () => {
+
 }
 
+export const TableUsers = () => {
+  const {getEmployeesAction} = useUserStore();
+  const [employees, setEmployees] = useState<IEmployee[]>();
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setEmployees(await getEmployeesAction());
+      } finally{
+
+      }
+    }
+
+    load();
+  }, [getEmployeesAction]);
+
+  return (
+    <Table<TableDataEmployee> columns={columns} dataSource={employees} />
+  )
+}
