@@ -19,3 +19,10 @@ pub struct NewUserDto {
   pub employee_identity: String,
   pub type_action: ActionsCrud
 }
+
+#[derive(Clone, Deserialize, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateStateForCheckedDto {
+  pub user_name: String,
+  pub state: bool
+}

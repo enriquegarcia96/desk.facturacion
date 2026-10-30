@@ -64,7 +64,7 @@ export interface IEmployees{
 }
 export interface IEmployee{
   role: string;
-  state: string;
+  state: boolean;
   fullName: string;
   userName: string;
 }

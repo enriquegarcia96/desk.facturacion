@@ -25,6 +25,8 @@ pub fn run() {
       ,commands::inventory::command_crud_product
       ,commands::employee::command_crud_user
       ,commands::employee::command_get_roles
+      ,commands::employee::command_get_employees
+      ,commands::employee::command_update_state
     ])
     .plugin(tauri_plugin_log::Builder::new().build())
     .run(tauri::generate_context!())

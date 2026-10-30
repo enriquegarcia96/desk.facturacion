@@ -11,7 +11,6 @@ import { useUserStore } from "../store/user.store";
 import { NewUserRequest } from "@interface/Request";
 import { EnumActionsCrud } from '@interface/EnumActions';
 
-const Message = lazy(() => import('../../../components/shared/Message/Message'));
 
 type Props = {
   openModal: boolean;
@@ -21,15 +20,15 @@ type Props = {
 const FormEditOrAddUser = ({ openModal, onClosed }: Props) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
+  const [blockButtonConfirm, setBlockButtonConfirm] = useState(false);
   const [roles, setRoles] = useState<IRole[]>();
-  const [showMessage, setShowMessage] = useState(false);
-  const {loadRolesAction, addNewUserAction, message, newEmployeeCreate, clearMessage} = useUserStore();
+  
+  const {loadRolesAction, addNewUserAction} = useUserStore();
 
   useEffect(() => {
     const load = async() => {
       try {
-        const listRoles = await loadRolesAction();
-        setRoles(listRoles);
+        setRoles(await loadRolesAction());        
       } finally {
         setLoading(false);
       }
@@ -38,34 +37,28 @@ const FormEditOrAddUser = ({ openModal, onClosed }: Props) => {
   }, [loadRolesAction]);
 
   const onCreate = async (request: NewUserRequest) => {
-    const request2: NewUserRequest = {
-      ...request
-      , typeAction: EnumActionsCrud.ADD
-    }
+    setBlockButtonConfirm(true);
+    try {
+      const requestNewUser: NewUserRequest = {
+        ...request
+        , typeAction: EnumActionsCrud.ADD
+      }
 
-    const isCorrect: boolean = await addNewUserAction(request2);
-    
-    if (!isCorrect) {
-      setShowMessage(true);
-      return;
-    }
-    
-    setTimeout(() => {
-      setShowMessage(true);
+      const isCorrect: boolean = await addNewUserAction(requestNewUser);
+      if (!isCorrect) {
+        setBlockButtonConfirm(false);
+        return;
+      }
       onClosed();
-    }, 2000);
+    } catch (error) {
+      console.error('ERROR '+error);
+    }finally{
+      setBlockButtonConfirm(false);
+    }
   };
 
   return (
     <>
-      {showMessage && (
-        <Message
-          messageToUser={message}
-          typeMessage={newEmployeeCreate ? 'success' : 'error'}
-          onClose={clearMessage}
-        />
-      )}
-
       <Modal
         open={openModal}
         width={700}
@@ -73,6 +66,7 @@ const FormEditOrAddUser = ({ openModal, onClosed }: Props) => {
         okText="Confirmar"
         cancelText="Cancelar"
         okButtonProps={{ autoFocus: true, htmlType: "submit" }}
+        confirmLoading={blockButtonConfirm}
         onCancel={onClosed}
         destroyOnHidden
         modalRender={(dom) => (
@@ -116,16 +110,18 @@ const FormEditOrAddUser = ({ openModal, onClosed }: Props) => {
           </Form.Item>
         </Form.Item>
 
-        <Form.Item label="Identidad" htmlFor="employeeIdentity">
+        <Form.Item label="Numero identidad" htmlFor="employeeIdentity">
           <Form.Item<NewUserRequest>
             name="employeeIdentity"
             rules={[{ required: true, message: "Requerido" }]}
+            normalize={(value: string) => value?.replace(/\D/g, '')}
           >
             <Input
               id="employeeIdentity"
               placeholder="Ej. 9999999999"
               min={13}
               maxLength={13}
+              inputMode='numeric'
             />
           </Form.Item>
         </Form.Item>
@@ -159,7 +155,7 @@ const FormEditOrAddUser = ({ openModal, onClosed }: Props) => {
           </Form.Item>
         </Form.Item>
 
-        <Form.Item label="User Name" htmlFor="userName">
+        <Form.Item label="User name" htmlFor="userName">
           <Form.Item<NewUserRequest>
             name="userName"
             rules={[{ required: true, message: "Requerido" }]}

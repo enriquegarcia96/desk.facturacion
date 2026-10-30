@@ -37,3 +37,7 @@ export interface NewUserRequest{
   typeAction: string;
   employeeIdentity: string;
 }
+export interface UpdateStateUserRequest {
+  userName: string;
+  state: boolean;
+}

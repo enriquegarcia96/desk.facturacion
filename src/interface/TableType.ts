@@ -10,7 +10,7 @@ export interface TableDataProduct {
 }
 export interface TableDataEmployee {
   role: string;
-  state: string;
+  state: boolean;
   fullName: string;
   userName: string;
 }

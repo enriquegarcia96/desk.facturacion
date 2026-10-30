@@ -35,18 +35,18 @@ pub async fn get_products_by_id_category(
   })?;
 
   let result_products = products
-      .inner_join(inventories.on(product_id.eq(id_product)))
-      .filter(category_id.eq(request.id_category))
-      .select((id_product, product_name, stock_quantity, sale_price))
-      .load::<ProductsDto>(&mut conn)
-      .map_err(|e| {
-          error!("Error al obtener la lista de productos {:?}", e);
-          ApiResponse::new_error(
-              "ERROR".to_string(),
-              500,
-              "No se pudo obtener la lista de productos asociados".to_string(),
-          )
-      })?;
+  .inner_join(inventories.on(product_id.eq(id_product)))
+  .filter(category_id.eq(request.id_category))
+  .select((id_product, product_name, stock_quantity, sale_price))
+  .load::<ProductsDto>(&mut conn)
+  .map_err(|e| {
+      error!("Error al obtener la lista de productos {:?}", e);
+      ApiResponse::new_error(
+          "ERROR".to_string(),
+          500,
+          "No se pudo obtener la lista de productos asociados".to_string(),
+      )
+  })?;
 
   if result_products.is_empty() {
       return Ok(ApiResponse::new_success(

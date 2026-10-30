@@ -1,16 +1,18 @@
+use std::format;
 use tauri::State;
 use serde_json::json;
 use log::{info, trace, error};
-use diesel::dsl::{insert_into};
+use diesel::dsl::{insert_into, update};
 use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::{BoolExpressionMethods, ExpressionMethods, MysqlConnection, OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, MysqlConnection, OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper, TextExpressionMethods};
 
 use crate::constants::action::ActionsCrud;
 use crate::constants::constant::Constants;
 use crate::models::employee_model::Employee;
 use crate::domain::api_response::ApiResponse;
 use crate::domain::dto::response::roles_dto::{RolesDto};
-use crate::domain::dto::request::employee_dto::NewUserDto;
+use crate::domain::dto::request::employee_dto::{NewUserDto, UpdateStateForCheckedDto};
+use crate::domain::dto::response::employee_dto::{EmployeesDto};
 use crate::infrastructure::db::connections::mysql::mysql_connection::DbPool;
 
 #[tauri::command]
@@ -147,5 +149,81 @@ pub async fn get_roles(state_tauri: State<'_, DbPool>) -> Result<ApiResponse, Ap
     Constants::OK,
     "Lista de roles".to_string(),
     json!({"roles": result_roles})
+  ))
+}
+
+#[tauri::command]
+pub async fn get_employees(state_tauri: State<'_, DbPool>) -> Result<ApiResponse, ApiResponse> {
+  trace!("#get_employees");
+  use crate::schema::roles::dsl::{roles, role_name, id_role};
+  use crate::schema::employees::dsl::{employees, state, first_name, last_name, user_name, role_id};
+  
+  let mut conn = state_tauri.get().map_err(|e| ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e)))?;
+
+  let result_employees: Vec<EmployeesDto> = employees
+    .inner_join(roles.on(id_role.eq(role_id)))
+    .select((role_name
+      , state.eq(Constants::ACTIVO)
+      , first_name.concat(" ").concat(last_name)
+      , user_name
+    ))
+    .order_by(state.desc())
+    .load::<EmployeesDto>(&mut conn)
+    .map_err(|e: diesel::result::Error| {
+      error!("Error al obtener la lista de empleados: {:?}", e);
+      ApiResponse::new_error(
+        "ERROR".to_string(),
+        Constants::ERRORDB,
+        "No se pudo obtener la lista de empleados".to_string(),
+      )
+    })?;
+
+  if result_employees.is_empty() {
+    trace!("#List employees {:?}", result_employees);
+
+    return Ok(ApiResponse::new_success(
+      "OK".to_string(),
+      Constants::OK,
+      "No hay empleados".to_string(),
+      json!({"employees": []})
+    ))
+  }
+
+  info!("#List employees {:?}", result_employees);
+
+  Ok(ApiResponse::new_success(
+    "OK".to_string(),
+    Constants::OK,
+    "Lista de empleados".to_string(),
+    json!({"employees": result_employees})
+  ))
+}
+
+#[tauri::command]
+pub async fn update_state_checked(state_tauri: State<'_, DbPool>, request: UpdateStateForCheckedDto) -> Result<ApiResponse, ApiResponse> {
+  trace!("#update_state_checked");
+  trace!(">>> Request {:?}", request);
+  use crate::schema::employees::dsl::{employees, state, user_name};
+  
+  let mut conn = state_tauri.get().map_err(|e| ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e)))?;
+
+  update(employees)
+    .filter(user_name.eq(&request.user_name))
+    .set(state.eq(request.state as i8))
+    .execute(&mut conn)
+    .map_err(|e: diesel::result::Error| {
+      error!("Error al actualizar el empleado: {:?} {:?}", &request.user_name, e);
+      ApiResponse::new_error(
+        "ERROR".to_string(),
+        Constants::ERRORDB,
+        "No se pudo actualizar al empleado".to_string(),
+      )
+  })?;
+
+  Ok(ApiResponse::new_success(
+    "OK".to_string(),
+    Constants::OK,
+    "Actualización correcta".to_string(), 
+    json!({})
   ))
 }

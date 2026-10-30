@@ -1,110 +1,73 @@
 import { useEffect, useState } from 'react';
 
-import type { TableProps } from 'antd';
-import { IoCreateSharp } from "react-icons/io5";
-import { Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { Table } from 'antd';
+import { ShopTwoTone} from '@ant-design/icons';
 
 import { useUserStore } from '../store/user.store';
-import { IEmployee } from '@interface/ApiResponse';
 import {TableDataEmployee} from '@interface/TableType';
-import { EnumState } from '@interface/EnumActions';
-
-
-const columns: TableProps<TableDataEmployee>['columns'] = [
-  {
-    title: 'Nombre completo',
-    dataIndex: 'fullName',
-    key: 'fullName',
-    render: (text) => <p className='font-semibold'>{text}</p>,
-  },
-  {
-    title: 'Roles',
-    dataIndex: 'role',
-    key: 'role',
-    render: (_: any, record: TableDataEmployee, index: number) => (
-      <>
-        <Tag
-          className='font-semibold'
-          variant='outlined'
-          color={record.role === 'administrador' ? 'cyan' : 'purple'}
-          key={index}
-        >
-          {record.role}
-        </Tag>
-      </>
-    ),
-  },
-  {
-    title: 'Estado',
-    dataIndex: 'state',
-    key: 'state',
-    render: (_: any, record: TableDataEmployee, index: number) => (
-      <>
-        <Switch
-          className='font-semibold'
-          checkedChildren={EnumState.ACTIVO}
-          unCheckedChildren={EnumState.INACTIVO}
-          //checked={record.state === EnumState.ACTIVO}
-          defaultChecked={record.state === EnumState.ACTIVO}
-          onChange={onChange}
-        />
-      </>
-    ),
-  },
-  {
-    title: 'Usuario',
-    key: 'userName',
-    dataIndex: 'userName',
-    render: (_: any, record: TableDataEmployee, index: number) => (
-      <p className='font-semibold' key={index}>
-        {record.userName}
-      </p>
-    ),
-  },
-  {
-    title: 'Acciones',
-    key: 'action',
-    render: (_, record: TableDataEmployee) => (
-      <Space size='small'>
-        <Tooltip title={'Editar'} >
-          <IoCreateSharp 
-            size={20} 
-            onClick={ss} 
-            className='cursor-pointer'
-            color='red'
-          />
-        </Tooltip>
-        
-      </Space>
-    ),
-  },
-];
-
-const onChange = (checked: boolean) => {
-  console.log(`switch to ${checked}`);
-};
-
-const ss = () => {
-
-}
+import { getColumnsEmployees } from './ColumnsEmployees';
+import { UpdateStateUserRequest } from '@interface/Request';
 
 export const TableUsers = () => {
-  const {getEmployeesAction} = useUserStore();
-  const [employees, setEmployees] = useState<IEmployee[]>();
+  const [_openPop, setOpenPop] = useState(false);
+  const {getEmployeesAction
+    , isLoadData
+    , employees
+    , updateStateUserAction} = useUserStore();
 
   useEffect(() => {
     const load = async () => {
       try {
-        setEmployees(await getEmployeesAction());
-      } finally{
-
+        await getEmployeesAction();
+      } catch(error){
+        console.error(error);
       }
     }
-
     load();
   }, [getEmployeesAction]);
 
+  const confirm = async (record: TableDataEmployee) => {
+    console.log(record);
+    const request: UpdateStateUserRequest = {
+      state: !record.state,
+      userName: record.userName
+    };
+    await updateStateUserAction(request);
+  };
+
+  const cancel = () => {
+    setOpenPop(false);
+  };
+
+  const handleSwitchChange = () => {
+    setOpenPop(true);
+  }
+
+  const columns = getColumnsEmployees({
+    onChangeState: confirm,
+    onCancel: cancel,
+    onHandleSwitchChange: handleSwitchChange
+  })
+
+  const datasource = employees.map<TableDataEmployee>(({fullName, role, state, userName}) => ({
+    key: userName,
+    fullName,
+    role, 
+    state, 
+    userName
+  }));
+
   return (
-    <Table<TableDataEmployee> columns={columns} dataSource={employees} />
+    <>
+      <Table<TableDataEmployee>
+        columns={columns}
+        dataSource={datasource}
+        loading={{
+          spinning: isLoadData
+          , indicator: <ShopTwoTone style={{ fontSize: 80 }} spin />
+          , description: 'Cargando...'
+        }}
+      />
+    </>
   )
 }

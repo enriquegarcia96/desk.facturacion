@@ -1,53 +1,56 @@
 import { create } from "zustand";
 
-import { IEmployee, IRole } from "@interface/ApiResponse";
-import { NewUserRequest } from "@interface/Request";
 import { UserService } from "../services/user.service";
-
+import { IEmployee, IRole } from "@interface/ApiResponse";
+import { NewUserRequest, UpdateStateUserRequest } from "@interface/Request";
 interface UserState{
   message: string;
   isLoadData: boolean;
+  messageToLoad: string;
+  messageNewUser: string;
+  employees: IEmployee[];
   newEmployeeCreate: boolean;
-
 
   clearMessage: () => void;
   loadRolesAction: () => Promise<IRole[]>;
-  getEmployeesAction: () => Promise<IEmployee[]>;
+  getEmployeesAction: () => Promise<void>;
   addNewUserAction: (request: NewUserRequest) =>  Promise<boolean>;
+  updateStateUserAction: (request: UpdateStateUserRequest) => Promise<void>;
 }
 
-export const useUserStore = create<UserState>()((set) => ({
+export const useUserStore = create<UserState>()((set, get) => ({
   message: '',
+  messageNewUser: '',
+  messageToLoad: '',
   newEmployeeCreate: false,
   isLoadData: false,
+  employees: [],
 
   addNewUserAction: async (request: NewUserRequest): Promise<boolean> => {
-    set({newEmployeeCreate: false, message: ''});
+    set({newEmployeeCreate: false, messageNewUser: ''});
 
     try {
       const {code, message} = await UserService.createNewUser(request);
       if (code != 200) {
-        set({newEmployeeCreate: false, message});
+        set({newEmployeeCreate: false, messageNewUser: message});
         return false;
       }
-      console.log(message)
-      set({newEmployeeCreate: true, message});
+      await get().getEmployeesAction();
+      set({newEmployeeCreate: true, messageNewUser: message});
       return true;
     } catch (error) {
       console.error(error);
-      set({newEmployeeCreate: false, message: 'error ' + error});
+      set({newEmployeeCreate: false, messageNewUser: 'error ' + error});
       return false;
     }
   },
 
   loadRolesAction: async (): Promise<IRole[]> => {
-    set({message: ''});
     try {
       const {data, code, message} = await UserService.getRoles();
       if(code === 200 && data.roles.length === 0){
         set({message});
       }
-      set({message});
       return data.roles;
     } catch (error) {
       console.error(error);
@@ -58,21 +61,36 @@ export const useUserStore = create<UserState>()((set) => ({
 
   clearMessage: () => set({message: ''}),
 
-  getEmployeesAction: async (): Promise<IEmployee[]> => {
-    set({isLoadData: true, message: ''});
+  getEmployeesAction: async (): Promise<void> => {
+    set({isLoadData: true, messageToLoad: '', employees:[], messageNewUser: ''});
 
     try {
       const {code, data, message} = await UserService.getEmployees();
-      console.log(data)
+      
       if (code != 200) {
-        
+        set({messageToLoad: message, employees: data.employees});
+        return;
       }   
-      set({message: message, isLoadData: false})
-      return data.employees;
+      set({messageToLoad: message, employees: data.employees});
     } catch (error) {
       console.error(error);
-      return [];
+      set({messageToLoad: 'error ' + error, employees: []});
+    }finally{
+      set({isLoadData: false});
+    }
+  },
+
+  updateStateUserAction: async (request: UpdateStateUserRequest): Promise<void> => {
+    set({isLoadData: true});
+    try {
+      await UserService.updateStateUser(request);
+      await get().getEmployeesAction();
+    } catch (error) {
+      console.error(error);
+    }finally{
+      set({isLoadData: false});
     }
   }
+
   
 }))

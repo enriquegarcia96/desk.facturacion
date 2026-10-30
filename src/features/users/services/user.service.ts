@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
-import { NewUserRequest } from "@interface/Request";
-import { IApiResponse, IEmployees, IRoles } from "@interface/ApiResponse"
+import { NewUserRequest, UpdateStateUserRequest } from "@interface/Request";
+import { IApiResponse, IEmployees, IRoles } from "@interface/ApiResponse";
 
 export class UserService {
 
@@ -15,6 +15,10 @@ export class UserService {
 
   static getEmployees = async (): Promise<IApiResponse<IEmployees>> => {
     return invoke<IApiResponse<IEmployees>>('command_get_employees', {});
+  }
+
+  static updateStateUser = async (request: UpdateStateUserRequest): Promise<IApiResponse<any>> => {
+    return invoke<IApiResponse<any>>('command_update_state', {request});
   }
 
 }

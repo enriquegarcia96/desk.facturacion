@@ -250,10 +250,6 @@ const handleSearch = (
     clearFilters();
     setSearchText('');
   };
-
-  
-
-  //////
   
   useEffect(() => {
     loadCategoriesAction();
