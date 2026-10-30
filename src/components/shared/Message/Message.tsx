@@ -47,10 +47,11 @@ interface Pros {
   onClose?: () => void;
 }
 
-export const Message = ({messageToUser, typeMessage, onClose} : Pros) => {
+const Message = ({messageToUser, typeMessage, onClose} : Pros) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
+    console.log('carga el pmensaaee')
     if (!messageToUser) return;
 
     messageApi.open({
@@ -67,3 +68,4 @@ return (
   </>
 );
 }
+export default Message;

@@ -5,6 +5,7 @@ import { AdminRoute } from "./components/ProtectedRoute";
 import { LoginPage } from "./features/auth/pages/login/LoginPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { InventoryPage } from "./features/inventory/pages/home/InventoryPage";
+import { UsersPage } from "./features/users/pages/UsersPage";
 
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 
@@ -30,8 +31,8 @@ export const appRouter = createBrowserRouter([
         element: <InventoryPage />
       },
       {
-        path:  'inventario/productos',
-        element: <h1>hhola desde pantalla de productos</h1>
+        path:  'usuarios',
+        element: <UsersPage />
       },
       {
         path: 'inventario/categorias',

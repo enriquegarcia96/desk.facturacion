@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Button, Input, InputRef, Space, Table, TableColumnType, Tooltip } from 'antd';
 import { GetRef, TableColumnsType, TableProps, Flex, Tag } from 'antd';
-import { DeleteFilled, DeleteTwoTone, EditFilled, EditOutlined, EditTwoTone, HeartTwoTone, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
+import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
 
 import { FormNewProduct } from './FormNewProduct';
 import { CategoryRequest } from '@interface/Request';
+import {EnumActionsCrud} from '@interface/EnumActions';
 import { useInventoryStore } from '../store/inventory.store';
 import { TableDataCategory, TableDataProduct } from '@interface/TableType';
 import { FilterDropdownProps } from 'antd/es/table/interface';
@@ -119,11 +120,7 @@ const presets = [
   { status: 'error', icon: <DeleteFilled />, title: 'Eliminar', action: 'DELETE' },
 ];
 
-enum EnumActionsCrud{
-  ADD = 'ADD',
-  EDIT = 'EDIT',
-  DELETE = 'DELETE'
-}
+
 
 export const InventoryTable = () => {
   const {loadCategoriesAction
@@ -225,10 +222,10 @@ export const InventoryTable = () => {
     render: () => (
       <Space size='small'>
         <Tooltip title='Editar'>
-          <EditFilled style={{color: 'blue'}} onClick={ss} />
+          <EditFilled style={{color: 'blue', fontSize: 17}} onClick={ss} />
         </Tooltip>
         <Tooltip title='Eliminar'>
-          <DeleteFilled style={{color: 'red'}} onClick={ss} />
+          <DeleteFilled style={{color: 'red', fontSize: 17}} onClick={ss} />
         </Tooltip>
       </Space>
     ),
@@ -253,10 +250,6 @@ const handleSearch = (
     clearFilters();
     setSearchText('');
   };
-
-  
-
-  //////
   
   useEffect(() => {
     loadCategoriesAction();
