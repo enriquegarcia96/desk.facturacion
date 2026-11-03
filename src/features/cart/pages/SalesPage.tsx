@@ -4,15 +4,14 @@ import { ProductSearchTable } from "../components/ProductSearchTable";
 
 export const SalesPage = () => {
   return (
-    // gap-4
-    <div className="flex flex-row h-full gap-4 px-2 justify-between">
+    <div className="flex flex-row h-full gap-4 px-2 ">
       <div className="flex flex-col">
           <ProductsCard />
-        <div className='h-full w-full border border-amber-500'>
+        <div className='h-full w-full'>
           <ProductSearchTable />
         </div>
       </div>
-      <div className="">
+      <div>
         <OrderCard />
       </div>
     </div>

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Card, Button, Checkbox } from 'antd';
+import { IoQrCodeSharp, IoSearch } from "react-icons/io5";
+
+
 import {
   MinusOutlined,
   PlusOutlined,
@@ -11,11 +14,12 @@ import {
 } from '@ant-design/icons';
 
 const items = [
-  { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
-  { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
-  { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
-  { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
-  { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
+  
+  // { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
+  // { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
+  // { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
+  // { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
+  // { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
 ];
 
 const payments = [
@@ -56,7 +60,7 @@ export const OrderCard = () => {
       >
         {/* Lista con scroll */}
         <div className="flex-1  overflow-y-auto">
-          {items.map((item) => (
+          {items.length > 0  ? items.map((item) => (
             <div key={item.id} className="flex justify-between py-1 border-b border-gray-200">
               <div>
                 <div className="text-sm">{item.name}</div>
@@ -76,7 +80,7 @@ export const OrderCard = () => {
                 </div>
               </div>
             </div>
-          ))}
+          )) : (<OrderCardEmpty />)}
         </div>
 
         {/* Resumen */}
@@ -136,4 +140,22 @@ export const OrderCard = () => {
       </Card>
     </div>
   );
+}
+
+export const OrderCardEmpty = () => {
+  return (
+  <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
+    <IoQrCodeSharp size={30} />
+    <div>
+      <p className="text-base font-bold">Escanear el código de barras</p>
+      <p className="font-normal">para añadir productos a la orden de compra.</p>
+    </div>
+    <span className="my-2 font-normal text-gray-500">o</span>
+    <IoSearch size={30} />
+    <div>
+      <p className="text-base font-bold">Buscarlos manualmente a la izquierda</p>
+      <p className="font-normal">para añadir productos a la orden de compra.</p>
+    </div>
+  </div>
+  )
 }
