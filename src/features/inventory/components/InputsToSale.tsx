@@ -31,7 +31,7 @@ export const InputsToSale = () => {
       <div className='flex flex-row justify-center gap-2'>
       <Form.Item
         name='typeMeasure'
-        label='Tipo de Metrica'
+        label='Tipo de venta'
         className='font-bold'
         rules={[{ required: true, message: 'Requerido' }]}
       >

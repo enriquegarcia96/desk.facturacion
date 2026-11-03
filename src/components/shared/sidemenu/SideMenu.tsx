@@ -5,9 +5,9 @@ import {
   IoHeartOutline,
   IoSpeedometerOutline,
   IoListOutline,
-  IoFastFoodOutline,
   IoBasketOutline,
-  IoPeopleOutline  
+  IoPeopleOutline,  
+  IoCartOutline
 } from "react-icons/io5";
 
 import "./SideMenu.css";
@@ -23,10 +23,10 @@ export const SideMenu = () => {
   const loadMenusAction = useSideMenuStore((state) => state.loadEmployeeMenusAction);
 
   const defaultMenu: IMenu[] = [  
+    { titleMenu: 'Ventas', subTitle: 'Vender', route: '/panel/ventas', Icon: IoCartOutline },
     { titleMenu: 'Dashboard', subTitle: 'Visualizar data', route: '/panel', Icon: IoSpeedometerOutline },
     { titleMenu: 'Inventario', subTitle: 'Actualización', route: '/panel/inventario', Icon: IoBasketOutline  },
     { titleMenu: 'Usuarios', subTitle: 'Editar o crear', route: '/panel/usuarios', Icon: IoPeopleOutline   },
-    { titleMenu: 'Productos', subTitle: 'Inventario de Productos', route: '/panel/inventario/productos', Icon: IoFastFoodOutline },
     { titleMenu: 'Tareas', subTitle: 'Listado de tareas', route: '/dashboard/tasks', Icon: IoListOutline },
     { titleMenu: 'Boda', subTitle: 'Invitados a la boda', route: '/dashboard/wedding-invitation', Icon: IoHeartOutline },
     { titleMenu: "Boda", subTitle: "Invitados a la boda", route: "/dashboard/wedding-invitation", Icon: IoHeartOutline },
@@ -57,7 +57,7 @@ export const SideMenu = () => {
   return (
     <div
       id="menu"
-      className="bg-gray-900 min-h-screen z-10 text-slate-300 w-80 left-0 overflow-y-scroll"
+      className="bg-gray-900 min-h-screen z-10 text-slate-300 w-55 left-0 overflow-y-scroll"
     >
       <div id="logo" className="my-4 px-6">
         {/* Title */}
