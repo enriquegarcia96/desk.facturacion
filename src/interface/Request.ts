@@ -41,3 +41,7 @@ export interface UpdateStateUserRequest {
   userName: string;
   state: boolean;
 }
+export interface ProductToSearchRequest {
+  codeBarOrProductName?: string;
+  category?: string;
+}
