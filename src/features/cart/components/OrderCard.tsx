@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Card, Button, Checkbox } from 'antd';
+import { Card, Button } from 'antd';
 import { IoQrCodeSharp, IoSearch } from "react-icons/io5";
-
 
 import {
   MinusOutlined,
@@ -14,12 +13,11 @@ import {
 } from '@ant-design/icons';
 
 const items = [
-  
-  // { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
-  // { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
-  // { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
-  // { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
-  // { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
+  { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
+  { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
+  { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
+  { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
+  { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
 ];
 
 const payments = [
