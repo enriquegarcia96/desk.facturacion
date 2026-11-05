@@ -7,3 +7,9 @@ pub struct CategoryDto {
   pub id_category: i32,
   pub name_category: String
 }
+#[derive(Serialize, Deserialize, Debug, Queryable)]
+#[serde(rename_all = "camelCase")]
+pub struct ActiveCategories {
+  pub value: i32,
+  pub label: String
+}
