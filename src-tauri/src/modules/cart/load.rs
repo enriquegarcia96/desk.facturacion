@@ -52,19 +52,45 @@ pub async fn search_product(state: State<'_, DbPool>, request: ProductToSearchRe
   trace!("#search_bar_code_or_category_name");
   trace!(">>> Request: {:?}", request);
 
-  use crate::schema::products::dsl::{products, bar_code, product_name, category_id, sale_price, id_product};
   use crate::schema::inventories::dsl::{inventories, product_id, stock_quantity};
+  use crate::schema::products::dsl::{products, bar_code, product_name, category_id, sale_price, id_product};
 
   let mut conn = state.get().map_err(|e| {
-      ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e))
+    ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e))
   })?;
 
-  //mejorar esto 
-  let siuu = request.category_id.unwrap();
+  let mut query_dynamic = products
+    .inner_join(inventories.on(product_id.eq(id_product)))
+    .into_boxed();
+
+  if let Some(ref code_bar_or_name) = request.code_bar_or_product_name {
+    let pattern  = format!("%{:?}%", code_bar_or_name);
+    query_dynamic = query_dynamic
+      .filter(
+        bar_code.eq(code_bar_or_name.to_string())
+        .or(product_name.like(pattern))
+      );
+  }
+
+  if let Some(cat_id) = request.category_id {
+    query_dynamic = query_dynamic
+      .filter(category_id.eq(cat_id));
+  }
+
+  //mejorar esto
+  let id_category = request.category_id.unwrap_or_default();
+  info!("id_category {:?}", id_category); 
+
+  let name_or_bar_code = format!("%{:?}%", request.code_bar_or_product_name);
+
+  info!("name_product {:?}", name_or_bar_code);
   let result_products = products
     .inner_join(inventories.on(product_id.eq(id_product)))
-    //.filter(category_id.eq(request.category_id.unwrap_or_default()))
-    .filter(category_id.eq(siuu))
+    .filter(
+      product_name.like(&name_or_bar_code)
+      .or(bar_code.eq(&name_or_bar_code))
+      .or(category_id.eq(id_category))
+    )
     .select((bar_code, product_name, sale_price, stock_quantity))
     .load::<ProductsToTableDto>(&mut conn)
     .map_err(|e: diesel::result::Error| {
