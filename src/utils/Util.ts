@@ -25,3 +25,11 @@ export const checkStock = (_: any, value: number): Promise<void> => {
   }
   return Promise.reject(new Error(`El stock debe ser mayor que cero`));
 };
+
+export const formattedMoney = (price: string): string => {
+  const money = parseFloat(price) || 0;
+  return `L${money.toLocaleString('es-HN',
+    { minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+}

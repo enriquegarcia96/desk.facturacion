@@ -43,5 +43,5 @@ export interface UpdateStateUserRequest {
 }
 export interface ProductToSearchRequest {
   codeBarOrProductName?: string;
-  category?: string;
+  categoryId?: number;
 }

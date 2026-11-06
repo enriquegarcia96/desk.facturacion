@@ -14,3 +14,9 @@ export interface TableDataEmployee {
   fullName: string;
   userName: string;
 }
+export interface TableDataListProducts {
+  barCode: string;
+  productName: string;
+  salePrice: string;
+  stock: number;
+}

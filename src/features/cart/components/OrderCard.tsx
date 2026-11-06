@@ -43,7 +43,7 @@ export const OrderCard = () => {
     <div className="w-full h-150">
       <Card
         className="h-full w-full flex flex-col border-0! rounded-lg! bg-white!"
-        title={<span className="text-2xl font-bold">Orden de compra</span>}
+        title={<span className="text-xl font-bold">Orden de compra</span>}
         extra={<span className="text-xs text-gray-500">23 de mayo de 2024, 18:39hs</span>}
         styles={{
           //header: { borderBottom: 0, paddingTop: 13 },

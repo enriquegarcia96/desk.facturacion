@@ -5,14 +5,14 @@ import { ProductSearchTable } from "../components/ProductSearchTable";
 export const SalesPage = () => {
   return (
     // aqui esta bine que muestre el mensaje al usuario
-    <div className="flex flex-row h-full gap-4 justify-between">
-      <div className="flex flex-col">
+    <div className="flex flex-row h-full">
+      <div className="flex flex-col w-1/2 px-0.5">
           <ProductSearchForm />
-        <div className='h-full w-full'>
+        <div className="flex-1 min-h-0 overflow-y-auto w-full">
           <ProductSearchTable />
         </div>
       </div>
-      <div className="px-0.5">
+      <div className="w-1/2">
         <OrderCard />
       </div>
     </div>
