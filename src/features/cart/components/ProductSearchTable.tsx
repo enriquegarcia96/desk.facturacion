@@ -1,10 +1,10 @@
-import { Flex, Listy, Tag, Button, Badge, Card, Tooltip } from "antd";
-
-import { PlusOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
+import { Flex, Listy, Button, Tooltip } from "antd";
+
+import {formattedMoney} from '../../../utils';
+import { PlusOutlined } from "@ant-design/icons";
 import { useCartStore } from "../store/cart.store";
 import { TableDataListProducts } from "@interface/TableType";
-import {formattedMoney} from '../../../utils';
 
 export const ProductSearchTable = () => {
   const products = useCartStore((state) => state.products);
@@ -37,16 +37,15 @@ export const ProductSearchTable = () => {
         }}
         itemRender={({productName, barCode, salePrice, stock}) => (
           <Tooltip title={`${productName} Existencias ${stock}`}>
-            <Flex align="center" className="w-full border">
-              <p className="text-sm">{barCode}</p>
-              <p className="text-sm border text-wrap">{productName}</p>
-              <p className="text-sm">{formattedMoney(salePrice)}</p>
-              <div className="flex-1" />
+            <Flex align='center' className="w-full">
+              <p className="text-sm font-semibold w-29 shrink-0 truncate">{barCode}</p>
+              <p className="text-sm font-semibold capitalize text-wrap flex-1">{productName}</p>
+              <p className="text-sm font-semibold shrink-0 text-right">{formattedMoney(salePrice)}</p>
               <Button
                 type="text"
                 icon={<PlusOutlined />}
                 title="Agregar producto"
-                className="font-medium! hover:bg-transparent!"
+                className="font-bold! hover:bg-transparent!"
               >
                 Añadir
               </Button>
