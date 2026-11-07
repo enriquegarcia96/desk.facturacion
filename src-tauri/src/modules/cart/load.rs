@@ -64,7 +64,7 @@ pub async fn search_product(state: State<'_, DbPool>, request: ProductToSearchRe
     .into_boxed();
 
   if let Some(ref code_bar_or_name) = request.code_bar_or_product_name {
-    let pattern  = format!("%{:?}%", code_bar_or_name);
+    let pattern  = format!("%{}%", code_bar_or_name.to_lowercase());
     query_dynamic = query_dynamic
       .filter(
         bar_code.eq(code_bar_or_name.to_string())
@@ -76,21 +76,8 @@ pub async fn search_product(state: State<'_, DbPool>, request: ProductToSearchRe
     query_dynamic = query_dynamic
       .filter(category_id.eq(cat_id));
   }
-
-  //mejorar esto
-  let id_category = request.category_id.unwrap_or_default();
-  info!("id_category {:?}", id_category); 
-
-  let name_or_bar_code = format!("%{:?}%", request.code_bar_or_product_name);
-
-  info!("name_product {:?}", name_or_bar_code);
-  let result_products = products
-    .inner_join(inventories.on(product_id.eq(id_product)))
-    .filter(
-      product_name.like(&name_or_bar_code)
-      .or(bar_code.eq(&name_or_bar_code))
-      .or(category_id.eq(id_category))
-    )
+  
+  let result_products = query_dynamic
     .select((bar_code, product_name, sale_price, stock_quantity))
     .load::<ProductsToTableDto>(&mut conn)
     .map_err(|e: diesel::result::Error| {
