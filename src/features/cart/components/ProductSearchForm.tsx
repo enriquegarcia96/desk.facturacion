@@ -1,7 +1,8 @@
 import { ProductToSearchRequest } from "@interface/Request";
-import { Button, Form, Input, Select, Space } from "antd";
+import { Form, Input, Select } from "antd";
 import { useEffect, useRef } from "react";
 import { useCartStore } from "../store/cart.store";
+import {  IoSearchSharp } from "react-icons/io5";
 
 export const ProductSearchForm = () => {
   const [form] = Form.useForm();
@@ -59,6 +60,7 @@ export const ProductSearchForm = () => {
         >
         <Input
           size="small"
+          prefix={<IoSearchSharp  />}
           placeholder="Código de barra o nombre"
           onChange={debouncedSubmit}
           className="border-2! border-gray-600! text-black"

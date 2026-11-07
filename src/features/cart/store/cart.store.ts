@@ -5,22 +5,23 @@ import { ProductToSearchRequest } from "@interface/Request";
 import { IActiveCategory, IListProduct } from "@interface/ApiResponse";
 
 interface CartState {
-  products: IListProduct[];
+  products: IListProduct[] | null;
   categories: IActiveCategory[];
   isLoadingProductsToTable: boolean;
 
 
   loadCategoryAction: () => Promise<void>;
   loadProductsToTableAction: (request: ProductToSearchRequest) => Promise<void>;
+  clearProductTableAction: () => void;
 }
 
 export const useCartStore = create<CartState>()((set) => ({
   categories: [],
-  products: [],
+  products: null,
   isLoadingProductsToTable: false,
 
   loadCategoryAction: async () => {
-    set({categories: [], products: []});
+    set({categories: []});
 
     try {
       const {data} = await CartService.getCategories();
@@ -42,6 +43,10 @@ export const useCartStore = create<CartState>()((set) => ({
     }finally{
       set({isLoadingProductsToTable: false});
     }
+  },
+
+  clearProductTableAction: () => {
+    set({products: null});
   }
 
 }))
