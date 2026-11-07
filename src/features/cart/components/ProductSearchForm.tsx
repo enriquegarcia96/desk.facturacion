@@ -1,12 +1,13 @@
 import { ProductToSearchRequest } from "@interface/Request";
 import { Button, Form, Input, Select, Space } from "antd";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useCartStore } from "../store/cart.store";
 
 export const ProductSearchForm = () => {
   const [form] = Form.useForm();
   const {loadCategoryAction, categories} = useCartStore();
   const loadProducts = useCartStore((state) => state.loadProductsToTableAction);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const load = async () => {
@@ -17,20 +18,27 @@ export const ProductSearchForm = () => {
       }
     }
     load();
+    clearTimeout(timerRef.current)
   }, [loadCategoryAction]);
 
   const onFinish = async (values: ProductToSearchRequest): Promise<void> => {
-    //ir a buscar la data para llenar los productos
-    console.log(values)
     try {
-      await loadProducts(values);
+      if (values.categoryId === undefined && (values.codeBarOrProductName === undefined || values.codeBarOrProductName.trim().length === 0)) {
+        return;
+      }
+      const request: ProductToSearchRequest = {
+        categoryId: values.categoryId,
+        codeBarOrProductName: values.codeBarOrProductName
+      }
+      await loadProducts(request);
     } catch (error) {
       console.error('Error al cargar los productos ', error);
     }
   };
 
-  const onReset = () => {
-    form.resetFields();
+  const debouncedSubmit = () => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => form.submit(), 800);
   };
 
   return (
@@ -39,27 +47,29 @@ export const ProductSearchForm = () => {
       layout="vertical"
       name="control-hooks"
       onFinish={onFinish}
-      style={{ maxWidth: 600 }}
+      //style={{ maxWidth: 600 }}
       //onReset={onReset}
     >
-      <div>
+      <div className="px-2">
         <Form.Item<ProductToSearchRequest>
           name="codeBarOrProductName"
           label="Buscar Productos"
-          className="font-medium"
+          className="font-extrabold"
           //rules={[{ required: true, message: "Requerido" }]}
         >
-          <Input 
-            size="small" 
-            placeholder="Código de barra o nombre" 
-            onChange={() => form.submit()}
-          />
+        <Input
+          size="small"
+          placeholder="Código de barra o nombre"
+          onChange={debouncedSubmit}
+          className="border-2! border-gray-600! text-black"
+        />
         </Form.Item>
       </div>
 
-      <div>
+      <div className="px-2">
         <Form.Item<ProductToSearchRequest>
-          name="categoryId" 
+          name="categoryId"
+          className="font-extrabold"
           //label="Gender" 
           //rules={[{ required: true }]}
         >
@@ -68,6 +78,7 @@ export const ProductSearchForm = () => {
             //onBlur={}
             allowClear
             placeholder="Filtrar por categoria"
+            className="border-2! border-gray-600!"
             //onChange={(value) => onGenderChange(value)}
             onChange={() => form.submit()}
             options={categories}

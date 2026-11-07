@@ -7,6 +7,7 @@ import { IActiveCategory, IListProduct } from "@interface/ApiResponse";
 interface CartState {
   products: IListProduct[];
   categories: IActiveCategory[];
+  isLoadingProductsToTable: boolean;
 
 
   loadCategoryAction: () => Promise<void>;
@@ -16,6 +17,7 @@ interface CartState {
 export const useCartStore = create<CartState>()((set) => ({
   categories: [],
   products: [],
+  isLoadingProductsToTable: false,
 
   loadCategoryAction: async () => {
     set({categories: [], products: []});
@@ -30,15 +32,15 @@ export const useCartStore = create<CartState>()((set) => ({
   },
 
   loadProductsToTableAction: async (request: ProductToSearchRequest) => {
-    set({products: []});
-
+    set({products: [], isLoadingProductsToTable: true});
     try {
-      const {code, data} = await CartService.getProductsToTable(request);
-      console.log(data)
-      set({products: data.products as IListProduct[]})//mejorar
+      const {data} = await CartService.getProductsToTable(request);
+      set({products: data.products})
     } catch (error) {
       console.error(error);
-      set({products: []});
+      set({products: [], isLoadingProductsToTable: false});
+    }finally{
+      set({isLoadingProductsToTable: false});
     }
   }
 

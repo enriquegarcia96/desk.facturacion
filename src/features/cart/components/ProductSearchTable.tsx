@@ -1,13 +1,14 @@
 import { useEffect } from "react";
-import { Flex, Listy, Button, Tooltip } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Flex, Listy, Button, Tooltip, Spin } from "antd";
 
 import {formattedMoney} from '../../../utils';
-import { PlusOutlined } from "@ant-design/icons";
 import { useCartStore } from "../store/cart.store";
 import { TableDataListProducts } from "@interface/TableType";
 
 export const ProductSearchTable = () => {
   const products = useCartStore((state) => state.products);
+  const loading = useCartStore((state) => state.isLoadingProductsToTable);
 
   const items = products.map<TableDataListProducts>(
     ({ barCode, salePrice, productName, stock }) => ({
@@ -21,10 +22,10 @@ export const ProductSearchTable = () => {
 
   useEffect(() => {
     console.log("entra por primera vez y se carga");
-  }, [products]);
+  }, [products, loading]);
 
   return (
-    <>      
+    <Spin spinning={loading}  size='large' description={'Buscando...'} className="h-full">
       <Listy<TableDataListProducts>
         virtual
         sticky
@@ -53,6 +54,6 @@ export const ProductSearchTable = () => {
           </Tooltip>
         )}
       />
-    </>
+    </Spin>
   );
 };
