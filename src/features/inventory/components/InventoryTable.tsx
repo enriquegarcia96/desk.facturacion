@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Input, InputRef, Space, Table, TableColumnType, Tooltip } from 'antd';
 import { GetRef, TableColumnsType, TableProps, Flex, Tag } from 'antd';
+import { Button, Input, InputRef, Space, Table, TableColumnType, Tooltip } from 'antd';
 import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined, ShopTwoTone} from '@ant-design/icons';
 
 import { FormNewProduct } from './FormNewProduct';
 import { CategoryRequest } from '@interface/Request';
 import {EnumActionsCrud} from '@interface/EnumActions';
 import { useInventoryStore } from '../store/inventory.store';
-import { TableDataCategory, TableDataProduct } from '@interface/TableType';
 import { FilterDropdownProps } from 'antd/es/table/interface';
+import { TableDataCategory, TableDataProduct } from '@interface/TableType';
+import {formattedMoney} from '../../../utils';
 
 
 // ===================== HOC AutoHeightTable =====================
@@ -103,16 +104,6 @@ const AutoHeightTable = <RecordType extends object>(
   );
 };
 
-
-// ===================== Columnas sub-tabla =====================// Source - https://stackoverflow.com/a/75491179
-// Posted by Brice Zele, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-10-21, License - CC BY-SA 4.0
-
-//onFilter: (value, record) => record.idea?.includes(value) === 0
-
-// { title: 'Name', dataIndex: 'name', key: 'name', filters: [{text: 'Cola', value: 'coca'}, {text: 'pollo', value: 'polo2'}], onFilter: (value, record) => record.name.indexOf(value as string) === 0 },
-
-
 const variants = ['solid'] as const;
 const presets = [
   { status: 'success', icon: <PlusOutlined />, title: 'Agregar Producto', action: 'ADD' },
@@ -120,17 +111,17 @@ const presets = [
   { status: 'error', icon: <DeleteFilled />, title: 'Eliminar', action: 'DELETE' },
 ];
 
-
-
 export const InventoryTable = () => {
-  const {loadCategoriesAction
-    , categories
+  const {
+    categories
     , isLoadingCategories
     , loadProductsByCategoryAction
     , products
     , isLoadingProducts} = useInventoryStore();
+  const loadCategoriesAction = useInventoryStore((state) => state.loadCategoriesAction);
   const [open, setOpen] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
+  const [nameCategory, setNameCategory] = useState('');
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
   const [searchText, setSearchText] = useState('');
@@ -215,7 +206,15 @@ export const InventoryTable = () => {
   const expandColumns2: TableColumnsType<TableDataProduct> = [
   {title: 'Producto', dataIndex: 'productName', key: 'productName', ...getColumnSearchProps('productName') },
   { title: 'Stock', dataIndex: 'stock', key: 'stock', render: (_: any, record: TableDataProduct) => <Tag  key={'filled'} color={record.stock < 4 ? 'volcano' : "green"}>{record.stock}</Tag>},
-  {title: 'Precio', dataIndex:'salePrice', key: 'salePrice', render: (value) => `L. ${value ?? 0} p/u`},  
+  {title: 'Precio Venta', dataIndex:'salePrice', key: 'salePrice', render: (value) => formattedMoney(value)},
+  {title: 'Precio Costo', dataIndex:'costPrice', key: 'costPrice', 
+    render: (_, product, index) => (
+      <div className='flex flex-col' key={index}>
+        <p className='font-medium'>{formattedMoney(product.costPrice)}</p>
+        <p className='text-[10px] font-bold text-[#19A7CE]'>{formattedMoney(product.costPriceOld)}</p>
+      </div>
+    ),
+  },
   {
     title: 'Edición',
     key: 'operation',
@@ -256,8 +255,14 @@ const handleSearch = (
   }, [loadCategoriesAction]);
 
   const columns2: TableColumnsType<TableDataCategory> = [
-    {title: 'Nombre', dataIndex: 'nameCategory', key: 'nameCategory'},
-    {title: 'Acciones', key: 'operation', render: (_: any, record: TableDataCategory) => (
+    {title: <p className='font-bold text-2xl'>Categorias</p>
+      , dataIndex: 'nameCategory'
+      , key: 'nameCategory'
+      , render: (value) => <p className='font-bold text-lg'>{value}</p>
+    },
+    {title: <p className='font-bold text-2xl'>Acciones</p>
+      , key: 'operation'
+      , render: (_: any, record: TableDataCategory) => (
       <>
       <Space size={'small'}>
         {variants.map((variant) => (
@@ -265,8 +270,8 @@ const handleSearch = (
         <Flex gap="small" align="center" wrap>
           {presets.map(({ status, icon, title, action }) => (
             <Tag 
-              className='cursor-pointer'
-              onClick={() => actionsCrud(action, record.idCategory)}
+              className='cursor-pointer font-bold!'
+              onClick={() => actionsCrud(action, record)}
               key={status}
               color={status}
               icon={icon}
@@ -298,13 +303,15 @@ const handleSearch = (
     await loadProductsByCategoryAction(request);
   }
 
-  const expandDataSource2 = products.map<TableDataProduct>(({idProduct, productName, salePrice, stock}) => ({
+  const expandDataSource2 = products.map<TableDataProduct>(({idProduct, productName, salePrice, stock, costPrice, costPriceOld}) => ({
     key: idProduct,
     idProduct, 
     productName,
     salePrice,
+    costPrice,
+    costPriceOld,
     stock
-  }))
+  }));
 
   const expandedRowRender2 = () => (
     <Table<TableDataProduct>
@@ -321,12 +328,14 @@ const handleSearch = (
     />
   );
 
-  const actionsCrud = async (action: string, categoryId: number) => {
-    const request: CategoryRequest = {idCategory: categoryId, categoryName: ""};
+  const actionsCrud = async (action: string, data: TableDataCategory) => {
+    const request: CategoryRequest = {idCategory: data.idCategory, categoryName: ""};
+    
     switch (action) {
       case EnumActionsCrud.ADD:
-        setCategoryId(categoryId);
-        setExpandedRowKeys([categoryId]);
+        setCategoryId(data.idCategory);
+        setNameCategory(data.nameCategory);
+        setExpandedRowKeys([data.idCategory]);
         await loadProductsByCategoryAction(request);
         setOpen(true);
       break;
@@ -347,26 +356,17 @@ const handleSearch = (
 
   return (
     <>
-      <FormNewProduct 
+    {
+      open && <FormNewProduct 
         openModal={open}
         typeAction={EnumActionsCrud.ADD}
         onClosed={() => onClosed()}
         categoryId={categoryId}
+        nameCategory={nameCategory}
       />
-    <div
-      style={{
-        height: '100vh', // hace mas alto la tablanpx
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 24,
-        padding: 24,
-        boxSizing: 'border-box',
-        background: '#f5f5f5',
-        overflow: 'auto',
-      }}
-    > 
-      
-      <div style={{ height: 450, minHeight: 0 }}>
+    }    
+    <div className='flex h-screen'>
+      <div className='w-full h-full'>
         <AutoHeightTable<TableDataCategory>
           columns={columns2}
           expandable={{ 
@@ -374,6 +374,7 @@ const handleSearch = (
             ,expandedRowRender: expandedRowRender2
             ,expandedRowKeys
           }}
+          pagination={{placement: ['topStart']}}
           dataSource={dataSource2}
           size='small'
           loading={{
@@ -383,7 +384,6 @@ const handleSearch = (
           }}
         />
       </div>
-
     </div>
     </>
   );

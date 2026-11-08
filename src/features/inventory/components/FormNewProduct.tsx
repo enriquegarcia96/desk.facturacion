@@ -1,6 +1,6 @@
-import { lazy } from 'react';
+import { lazy, useEffect, useState } from 'react';
 
-import {  Form, Modal } from 'antd';
+import {  Form, Modal, Tag } from 'antd';
 
 import { InputsToSale } from './InputsToSale';
 import { InputsToProduct } from './InputsToProduct';
@@ -16,12 +16,41 @@ type Props = {
   typeAction: string;
   categoryId: number;
   onClosed: () => void;
+  nameCategory: string;
 }
 
-export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: Props) => {
+  const colors: string[] = [
+  'magenta',
+  'red',
+  'volcano',
+  'orange',
+  'lime',
+  'green',
+  'cyan',
+  'blue',
+  'geekblue',
+  'purple',
+  '#f50',
+  '#2db7f5',
+  '#87d068',
+  '#108ee9'
+];
+
+export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId, nameCategory }: Props) => {
   const createNewProductAction = useInventoryStore((state) => state.createNewProductAction);
   const modifyBy = useAuthStore((state) => state.user?.userName || 'sys');
   const [form] = Form.useForm();
+
+  const [color] = useState(
+    () => colors[Math.floor(Math.random() * colors.length)]
+  );
+
+  useEffect(() => {
+    console.log('cuando veces entro ?', color)
+    return () => {
+      console.log('se limpio ?')
+    };
+  }, []);
 
   const onCreate = async (values: NewProductRequest) => {
     const request: NewProductRequest = {...values, typeAction, modifyBy, categoryId};
@@ -37,10 +66,20 @@ export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: 
     
   };
 
+  const modalTitle = (
+    <div className="flex items-center justify-between pr-6">
+      <p className='font-bold text-base'>Nuevo Producto en</p>
+      
+      <Tag color={color} variant="solid" className='font-extrabold! text-base!'>
+        {nameCategory}
+      </Tag>
+    </div>
+  );
+
   return (
       <Modal
         open={openModal}
-        title="Creación de nuevo producto"
+        title={modalTitle}
         okText="Crear"
         cancelText="Cancelar"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
@@ -59,7 +98,6 @@ export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId }: 
           </Form>
         )}
       >
-        
       <ShowMessage />
       <InputsToProduct />
       <InputsToSale />   
