@@ -1,8 +1,8 @@
-use log::trace;
 use std::format;
 use tauri::State;
 use serde_json::json;
 use diesel::prelude::*;
+use log::{error, trace};
 
 use crate::constants::constant::Constants;
 use crate::domain::api_response::ApiResponse;
@@ -20,9 +20,16 @@ pub async fn get_categories(state: State<'_, DbPool>) -> Result<ApiResponse, Api
   let result_categories = categories::table
     .filter(categories::state.eq(Constants::ACTIVO))
     .select((categories::id_category, categories::category_name))
-    .order_by(categories::created_on.desc())
+    .order_by(categories::category_name.asc())
     .load::<CategoryDto>(&mut conn)
-    .map_err(|e| ApiResponse::new_error(format!("ERROR"), 404, format!("Error al consultar las categorias {:?}", e)))?;
+    .map_err(|e: diesel::result::Error| {
+      error!("Error al obtener todas las categorias: {:?}", e);
+      ApiResponse::new_error(
+        "ERROR".to_string(),
+        Constants::ERRORDB,
+        "Error al consultar las categorias".to_string(),
+      )
+    })?;
 
   if result_categories.is_empty() {
     return Ok(ApiResponse::new_success(format!("OK"), Constants::OK, format!("No hay categorias"), json!({"categories": result_categories})));

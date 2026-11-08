@@ -1,4 +1,3 @@
-use chrono::Utc;
 use std::format;
 use tauri::State;
 use serde_json::json;
@@ -8,6 +7,7 @@ use diesel::dsl::insert_into;
 use log::{error, info, trace};
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 
+use crate::utils::util::get_now;
 use crate::constants::action::ActionsCrud;
 use crate::constants::constant::Constants;
 use crate::domain::api_response::ApiResponse;
@@ -27,7 +27,13 @@ pub async fn get_products_by_id_category(
   trace!(">>> Request {:?}", request);
   use crate::schema::inventories::dsl::{inventories, product_id, stock_quantity};
   use crate::schema::products::dsl::{
-      category_id, id_product, product_name, products, sale_price,
+    category_id
+    , id_product
+    , product_name
+    , products
+    , sale_price
+    , cost_price
+    , old_cost_price
   };
 
   let mut conn = state.get().map_err(|e| {
@@ -37,31 +43,33 @@ pub async fn get_products_by_id_category(
   let result_products = products
   .inner_join(inventories.on(product_id.eq(id_product)))
   .filter(category_id.eq(request.id_category))
-  .select((id_product, product_name, stock_quantity, sale_price))
+  .select((id_product, product_name, stock_quantity, sale_price, cost_price, old_cost_price))
   .load::<ProductsDto>(&mut conn)
   .map_err(|e| {
-      error!("Error al obtener la lista de productos {:?}", e);
-      ApiResponse::new_error(
-          "ERROR".to_string(),
-          500,
-          "No se pudo obtener la lista de productos asociados".to_string(),
-      )
+    error!("Error al obtener la lista de productos {:?}", e);
+    ApiResponse::new_error(
+      "ERROR".to_string(),
+      Constants::ERRORDB,
+      "No se pudo obtener la lista de productos asociados".to_string(),
+    )
   })?;
 
   if result_products.is_empty() {
-      return Ok(ApiResponse::new_success(
-          format!("OK"),
-          Constants::OK,
-          format!("No hay productos asociados"),
-          json!({"products": []}),
-      ));
-  }
-
-  Ok(ApiResponse::new_success(
+    return Ok(ApiResponse::new_success(
       format!("OK"),
       Constants::OK,
-      format!("Lista de productos"),
-      json!({"products": result_products}),
+      format!("No hay productos asociados"),
+      json!({"products": []}),
+    ));
+  }
+
+  trace!("result_products {:?}", result_products);
+
+  Ok(ApiResponse::new_success(
+    format!("OK"),
+    Constants::OK,
+    format!("Lista de productos"),
+    json!({"products": result_products}),
   ))
 }
 
@@ -106,11 +114,11 @@ fn insert_product(
 
   let product_bar_code = request.bar_code.clone();
   let new_product: NewProduct = NewProduct {
-      product_name: request.product_name,
+      product_name: request.product_name.trim().to_lowercase(),
       modify_by: request.modify_by,
       sale_price: request.sale_price,
       cost_price: request.cost_price,
-      created_on: Some(Utc::now().naive_utc()),
+      created_on: Some(get_now()),
       updated_on: None,
       bar_code: request.bar_code,
       category_id: request.category_id,
@@ -144,12 +152,12 @@ fn insert_product(
       .values(new_product)
       .execute(conn)
       .map_err(|e: diesel::result::Error| {
-          error!("Error al insertar en productos: {:?}", e);
-          ApiResponse::new_error(
-              "ERROR".to_string(),
-              500,
-              "No se pudo crear el nuevo producto".to_string(),
-          )
+        error!("Error al insertar en productos: {:?}", e);
+        ApiResponse::new_error(
+            "ERROR".to_string(),
+            500,
+            "No se pudo crear el nuevo producto".to_string(),
+        )
       })?;
 
   let id_new_product: i32 = products
@@ -157,12 +165,12 @@ fn insert_product(
       .order(id_product.desc())
       .first::<i32>(conn)
       .map_err(|e: diesel::result::Error| {
-          error!("Error al obtener el ID del nuevo producto: {:?}", e);
-          ApiResponse::new_error(
-              "ERROR".to_string(),
-              500,
-              "No se pudo obtener el ID del nuevo producto".to_string(),
-          )
+        error!("Error al obtener el ID del nuevo producto: {:?}", e);
+        ApiResponse::new_error(
+          "ERROR".to_string(),
+          500,
+          "No se pudo obtener el ID del nuevo producto".to_string(),
+        )
       })?;
 
   let new_inventory: NewInventory = NewInventory {
@@ -176,17 +184,17 @@ fn insert_product(
       .map_err(|e: diesel::result::Error| {
         error!("Error al insertar en inventories: {:?}", e);
         ApiResponse::new_error(
-            "ERROR".to_string(),
-            500,
-            "No se pudo crear el nuevo ventario".to_string(),
+          "ERROR".to_string(),
+          500,
+          "No se pudo crear el nuevo ventario".to_string(),
         )
       })?;
 
   Ok(ApiResponse::new_success(
-      "OK".to_string(),
-      Constants::OK,
-      "Nuevo Producto creado".to_string(),
-      json!({}),
+    "OK".to_string(),
+    Constants::OK,
+    "Nuevo Producto creado".to_string(),
+    json!({}),
   ))
 }
 

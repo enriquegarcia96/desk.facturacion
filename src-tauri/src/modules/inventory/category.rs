@@ -5,7 +5,7 @@ use log::{info, trace};
 use diesel::prelude::*;
 use diesel::dsl::insert_into;
 
-use crate::utils::util::uppercase_words;
+use crate::utils::util::{uppercase_words, get_now};
 use crate::constants::constant::Constants;
 use crate::domain::api_response::ApiResponse;
 use crate::models::category_model::{Category, NewCategory};
@@ -19,7 +19,7 @@ pub async fn create_new_category(state: State<'_, DbPool>, request: NewCategoryD
   use crate::schema::categories;
 
   let mut conn = state.get().map_err(|e| {
-      ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e))
+    ApiResponse::new_error(format!("Error al obtener el POOL"), 500, format!("{:?}", e))
   })?;
   
   let result_query = categories::table
@@ -30,11 +30,13 @@ pub async fn create_new_category(state: State<'_, DbPool>, request: NewCategoryD
 
   if result_query.is_empty() {
     info!("#crea nueva categoria");
-    
+    //Some(Utc::now().naive_utc())
+    let category_name: String = request.name_category.trim().to_lowercase();
     let new_category: NewCategory = NewCategory {
-      category_name: uppercase_words(request.name_category),
+      category_name: uppercase_words(category_name),
       modify_by: request.user_name,
-      state: Constants::ACTIVO
+      state: Constants::ACTIVO,
+      created_on: Some(get_now())
     };
 
     insert_into(categories::table)
