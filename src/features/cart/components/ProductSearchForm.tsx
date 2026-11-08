@@ -1,11 +1,14 @@
 import { ProductToSearchRequest } from "@interface/Request";
-import { Form, Input, Select } from "antd";
+import { Form, FormInstance, Input, Select } from "antd";
 import { useEffect, useRef } from "react";
 import { useCartStore } from "../store/cart.store";
 import {  IoSearchSharp } from "react-icons/io5";
 
-export const ProductSearchForm = () => {
-  const [form] = Form.useForm();
+interface Props {
+  form: FormInstance;
+}
+
+export const ProductSearchForm = ({form}: Props) => {
   const {loadCategoryAction, categories} = useCartStore();
   const loadProducts = useCartStore((state) => state.loadProductsToTableAction);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -41,22 +44,19 @@ export const ProductSearchForm = () => {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => form.submit(), 800);
   };
-
+  
   return (
     <Form
       form={form}
       layout="vertical"
       name="control-hooks"
       onFinish={onFinish}
-      //style={{ maxWidth: 600 }}
-      //onReset={onReset}
     >
       <div className="px-2">
         <Form.Item<ProductToSearchRequest>
           name="codeBarOrProductName"
           label="Buscar Productos"
           className="font-extrabold"
-          //rules={[{ required: true, message: "Requerido" }]}
         >
         <Input
           size="small"
@@ -72,16 +72,12 @@ export const ProductSearchForm = () => {
         <Form.Item<ProductToSearchRequest>
           name="categoryId"
           className="font-extrabold"
-          //label="Gender" 
-          //rules={[{ required: true }]}
         >
           <Select
             size="small"
-            //onBlur={}
             allowClear
             placeholder="Filtrar por categoria"
             className="border-2! border-gray-600!"
-            //onChange={(value) => onGenderChange(value)}
             onChange={() => form.submit()}
             options={categories}
           />

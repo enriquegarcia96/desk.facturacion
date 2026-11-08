@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Button } from 'antd';
 import { IoQrCodeSharp, IoSearch } from "react-icons/io5";
 
@@ -31,20 +31,30 @@ const payments = [
 const money = (n: number) => `L ${n.toLocaleString('es-HN')}`;
 
 export const OrderCard = () => {
-  const [payment, setPayment] = useState('transfer');
+  const [payment, setPayment] = useState('cash');
   const items = useCartStore((state) => state.orderProducts);
+  const increaseQuantity = useCartStore((state) => state.incrementQuantityAction);
+  const decrementQuantity = useCartStore((state) => state.decrementQuantityAction);
 
   const subtotal = items.reduce((s, i) => s + Number(i.salePrice) * i.quantity, 0);
   // const discount = items.reduce(
   //   (s, i) => s + (i.discount ? (i.salePrice * i.quantity * i.discount) / 100 : 0),
   //   0
   // );
+
+  useEffect(() => {
+    console.log('se recarga el componenete ?')
+    return () => {
+      console.log('se limpia la orden')
+    };
+  }, [items]);
+
   const discount = items.reduce(
     (s, i) => s + ((Number(i.salePrice) * i.quantity) / 100 ),
     0
   );
-  const total = subtotal - discount;
-
+  const total = subtotal; //- discount;
+  
   return (
     <div className="w-full h-150">
       <Card
@@ -78,9 +88,9 @@ export const OrderCard = () => {
               <div className="flex flex-col items-end">
                 <span className="text-sm">{money(Number(item.salePrice) * item.quantity)}</span>
                 <div className="flex items-center gap-3">
-                  <MinusOutlined className="cursor-pointer" />
+                  <MinusOutlined className="cursor-pointer" onClick={() => decrementQuantity(item.barCode, index)}/>
                   <span className="text-sm font-semibold">{item.quantity}</span>
-                  <PlusOutlined className="cursor-pointer" />
+                  <PlusOutlined className="cursor-pointer" onClick={() => increaseQuantity(item.barCode, index)}/>
                 </div>
               </div>
             </div>
@@ -93,15 +103,15 @@ export const OrderCard = () => {
             <span>Subtotal</span>
             <span>{money(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-red-600 font-semibold">
+          {/* <div className="flex justify-between text-red-600 font-semibold">
             <span>Descuento</span>
             <span>-{money(discount)}</span>
-          </div>
+          </div> */}
           <div className="flex justify-between text-xl font-bold">
             <span>Total</span>
             <span>{money(total)}</span>
           </div>
-        </div>
+        </div> 
 
         {/* Método de pago */}
         <div className="mt-4">

@@ -7,11 +7,15 @@ import { useCartStore } from "../store/cart.store";
 import { TableDataListProducts } from "@interface/TableType";
 import { IOrderProducts } from "@interface/order.interface";
 
-export const ProductSearchTable = () => {
+interface Props {
+  onReset: () => void;
+}
+export const ProductSearchTable = ({onReset}: Props) => {
   const products = useCartStore((state) => state.products);
   const loading = useCartStore((state) => state.isLoadingProductsToTable);
   const clearTable = useCartStore((state) => state.clearProductTableAction);
-  const addedOrderProductsAction = useCartStore((state) => state.addedOrderProductsAction);
+  const clearProductTable = useCartStore((state) => state.clearProductTableAction);
+  const addedOrderProductsAction = useCartStore((state) => state.addedOrderProductAction);
 
   const items = products?.map<TableDataListProducts>(
     ({ barCode, salePrice, productName, stock }) => ({
@@ -36,10 +40,12 @@ export const ProductSearchTable = () => {
   const addedOrderProducts = async (order: IOrderProducts) => {
     const isAddedToOrder: boolean = await addedOrderProductsAction(order);
     
-    console.log(isAddedToOrder)
     if (!isAddedToOrder) {
       return;
     }
+    
+    clearProductTable();
+    onReset();
   }
 
   return (
