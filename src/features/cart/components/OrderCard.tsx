@@ -11,14 +11,15 @@ import {
   MobileOutlined,
   CreditCardOutlined,
 } from '@ant-design/icons';
+import { useCartStore } from '../store/cart.store';
 
-const items = [
-  // { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
-  // { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
-  // { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
-  // { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
-  // { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
-];
+// const items = [
+//   // { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
+//   // { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
+//   // { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
+//   // { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
+//   // { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
+// ];
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },
@@ -27,14 +28,19 @@ const payments = [
   { key: 'credit', label: 'Crédito', icon: <CreditCardOutlined /> },
 ];
 
-const money = (n: number) => `$ ${n.toLocaleString('es-AR')}`;
+const money = (n: number) => `L ${n.toLocaleString('es-HN')}`;
 
 export const OrderCard = () => {
   const [payment, setPayment] = useState('transfer');
+  const items = useCartStore((state) => state.orderProducts);
 
-  const subtotal = items.reduce((s, i) => s + i.unit * i.qty, 0);
+  const subtotal = items.reduce((s, i) => s + Number(i.salePrice) * i.quantity, 0);
+  // const discount = items.reduce(
+  //   (s, i) => s + (i.discount ? (i.salePrice * i.quantity * i.discount) / 100 : 0),
+  //   0
+  // );
   const discount = items.reduce(
-    (s, i) => s + (i.discount ? (i.unit * i.qty * i.discount) / 100 : 0),
+    (s, i) => s + ((Number(i.salePrice) * i.quantity) / 100 ),
     0
   );
   const total = subtotal - discount;
@@ -58,22 +64,22 @@ export const OrderCard = () => {
       >
         {/* Lista con scroll */}
         <div className="flex-1  overflow-y-auto">
-          {items.length > 0  ? items.map((item) => (
-            <div key={item.id} className="flex justify-between py-1 border-b border-gray-200">
+          {items.length > 0  ? items.map((item, index) => (
+            <div key={index} className="flex justify-between py-1 border-b border-gray-200">
               <div>
-                <div className="text-sm">{item.name}</div>
+                <div className="text-sm">{item.productName}</div>
                 <div className="text-xs text-gray-500">
-                  {item.discount && (
+                  {/* {item.discount && (
                     <span className="text-red-600 mr-2">Descuento {item.discount}%</span>
-                  )}
-                  {money(item.unit)} /u
+                  )} */}
+                  {money(Number(item.salePrice))} /u
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-sm">{money(item.unit * item.qty)}</span>
+                <span className="text-sm">{money(Number(item.salePrice) * item.quantity)}</span>
                 <div className="flex items-center gap-3">
                   <MinusOutlined className="cursor-pointer" />
-                  <span className="text-sm font-semibold">{item.qty}</span>
+                  <span className="text-sm font-semibold">{item.quantity}</span>
                   <PlusOutlined className="cursor-pointer" />
                 </div>
               </div>
