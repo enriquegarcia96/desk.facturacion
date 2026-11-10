@@ -18,5 +18,6 @@ pub struct Category {
 pub struct NewCategory {
   pub category_name: String,
   pub modify_by: String,
-  pub state: i8
+  pub state: i8,
+  pub created_on: Option<NaiveDateTime>
 }

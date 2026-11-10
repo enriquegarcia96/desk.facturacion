@@ -18,12 +18,13 @@ export const ProductSearchTable = ({onReset}: Props) => {
   const addedOrderProductsAction = useCartStore((state) => state.addedOrderProductAction);
 
   const items = products?.map<TableDataListProducts>(
-    ({ barCode, salePrice, productName, stock }) => ({
+    ({ barCode, salePrice, productName, stock, id_product }) => ({
       key: barCode,
       barCode,
       productName,
       salePrice,
       stock,
+      id_product
     }),
   );
 
@@ -68,7 +69,7 @@ export const ProductSearchTable = ({onReset}: Props) => {
           classNames={{
             item: "border-b-2! border-solid! border-transparent! hover:border-black! hover:bg-[#7090b0]/20!",
           }}
-          itemRender={({barCode, productName, salePrice, stock}) => (
+          itemRender={({barCode, productName, salePrice, stock, id_product}) => (
             <Tooltip title={`${productName} Existencias ${stock}`}>
               <Flex align="center" className="w-full">
                 <p className="text-sm font-semibold w-29 shrink-0 truncate">
@@ -89,7 +90,8 @@ export const ProductSearchTable = ({onReset}: Props) => {
                     barCode,
                     productName,
                     salePrice,
-                    quantity: 1
+                    quantity: 1,
+                    id_product
                   })}
                 >
                   Añadir

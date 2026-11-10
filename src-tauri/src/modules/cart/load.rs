@@ -78,7 +78,7 @@ pub async fn search_product(state: State<'_, DbPool>, request: ProductToSearchRe
   }
   
   let result_products = query_dynamic
-    .select((bar_code, product_name, sale_price, stock_quantity))
+    .select((bar_code, product_name, sale_price, stock_quantity, id_product))
     .load::<ProductsToTableDto>(&mut conn)
     .map_err(|e: diesel::result::Error| {
         error!("Error al obtener los productos {:?}", e);

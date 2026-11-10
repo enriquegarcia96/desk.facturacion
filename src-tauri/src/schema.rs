@@ -78,6 +78,7 @@ diesel::table! {
         category_id -> Integer,
         #[max_length = 100]
         bar_code -> Varchar,
+        old_cost_price -> Decimal,
     }
 }
 

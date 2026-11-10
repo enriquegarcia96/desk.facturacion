@@ -23,11 +23,11 @@ export const SideMenu = () => {
   const loadMenusAction = useSideMenuStore((state) => state.loadEmployeeMenusAction);
 
   const defaultMenu: IMenu[] = [  
-    { titleMenu: 'Ventas', subTitle: 'Vender', route: '/panel/ventas', Icon: IoCartOutline },
+    { titleMenu: 'Vender', subTitle: 'ventas', route: '/panel/ventas', Icon: IoBasketOutline },
     { titleMenu: 'Dashboard', subTitle: 'Visualizar data', route: '/panel', Icon: IoSpeedometerOutline },
     { titleMenu: 'Inventario', subTitle: 'Actualización', route: '/panel/inventario', Icon: IoBasketOutline  },
-    { titleMenu: 'Usuarios', subTitle: 'Editar o crear', route: '/panel/usuarios', Icon: IoPeopleOutline   },
-    { titleMenu: 'Tareas', subTitle: 'Listado de tareas', route: '/dashboard/tasks', Icon: IoListOutline },
+    { titleMenu: 'Usuarios', subTitle: 'Editar o crear', route: '/panel/usuarios', Icon: IoPeopleOutline },
+    { titleMenu: 'Compras', subTitle: 'ingreso', route: '/panel/compras', Icon: IoCartOutline },
     { titleMenu: 'Boda', subTitle: 'Invitados a la boda', route: '/dashboard/wedding-invitation', Icon: IoHeartOutline },
     { titleMenu: "Boda", subTitle: "Invitados a la boda", route: "/dashboard/wedding-invitation", Icon: IoHeartOutline },
     { titleMenu: "Ventas", subTitle: "vender productos", route: "/venta/facturacion", Icon: IoHeartOutline},

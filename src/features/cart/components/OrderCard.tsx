@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { Card, Button } from 'antd';
 import { IoQrCodeSharp, IoSearch } from "react-icons/io5";
 
@@ -12,14 +13,6 @@ import {
   CreditCardOutlined,
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cart.store';
-
-// const items = [
-//   // { id: 1, name: 'Nombre producto', unit: 1000, qty: 2 },
-//   // { id: 2, name: 'Nombre producto', unit: 1000, qty: 1, discount: 15 },
-//   // { id: 3, name: 'Nombre producto', unit: 1000, qty: 1 },
-//   // { id: 4, name: 'Nombre producto', unit: 1000, qty: 1 },
-//   // { id: 5, name: 'Nombre producto', unit: 1000, qty: 1 },  
-// ];
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },

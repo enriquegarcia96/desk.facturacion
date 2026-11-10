@@ -6,11 +6,10 @@ import {IOrderProducts} from '@interface/order.interface';
 import { IActiveCategory, IListProduct } from "@interface/ApiResponse";
 
 interface CartState {
-  products: IListProduct[] | null;
   categories: IActiveCategory[];
-  isLoadingProductsToTable: boolean;
+  products: IListProduct[] | null;
   orderProducts: IOrderProducts[];
-
+  isLoadingProductsToTable: boolean;
 
   loadCategoryAction: () => Promise<void>;
   loadProductsToTableAction: (request: ProductToSearchRequest) => Promise<void>;
@@ -20,7 +19,7 @@ interface CartState {
   decrementQuantityAction: (barCode: string, indexArray: number) => void;
 }
 
-export const useCartStore = create<CartState>()((set, get) => ({
+export const useCartStore = create<CartState>()((set) => ({
   categories: [],
   orderProducts: [],
   products: null,
@@ -42,6 +41,7 @@ export const useCartStore = create<CartState>()((set, get) => ({
     set({products: [], isLoadingProductsToTable: true});
     try {
       const {data} = await CartService.getProductsToTable(request);
+      console.log(data)
       set({products: data.products})
     } catch (error) {
       console.error(error);
@@ -60,9 +60,6 @@ export const useCartStore = create<CartState>()((set, get) => ({
       set((state) => ({
         orderProducts: [...state.orderProducts, order]
       }));
-
-      console.log('actualmente ', get().orderProducts)
-      
       //TODO: hacer el llamado  con el serviocio
       return true;
     } catch (error) {
@@ -83,14 +80,11 @@ export const useCartStore = create<CartState>()((set, get) => ({
 
   decrementQuantityAction: (barCode: string, indexArray: number) => {
     set((state) => ({
-      orderProducts: state.orderProducts.map((p, index) => (
-        p.barCode === barCode && index === indexArray
-        && p.quantity > 1
-          ? {...p, quantity: p.quantity - 1}
-          : p
-      ))
+      orderProducts: state.orderProducts.map((p, index) =>
+        p.barCode === barCode && index === indexArray ?
+        {...p, quantity: p.quantity - 1} : p
+      )
+      .filter((product) => product.quantity > 0)
     }))
   }
-
-
 }))

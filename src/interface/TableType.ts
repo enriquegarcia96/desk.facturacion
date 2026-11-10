@@ -5,8 +5,10 @@ export interface TableDataCategory {
 export interface TableDataProduct {
   stock: number;
   idProduct: number;
-  salePrice: number;
+  salePrice: string;
   productName: string;
+  costPrice: string;
+  costPriceOld: string;
 }
 export interface TableDataEmployee {
   role: string;
@@ -19,4 +21,5 @@ export interface TableDataListProducts {
   productName: string;
   salePrice: string;
   stock: number;
+  id_product: number;
 }

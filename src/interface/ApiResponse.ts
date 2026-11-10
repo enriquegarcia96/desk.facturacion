@@ -33,13 +33,18 @@ export interface ICategory {
   idCategory: number;
 }
 export interface IProducts {
-  products: IProduct[] | IListProduct[];
+  products: IProduct[];
+}
+export interface IProductsTable {
+  products:  IListProduct[];
 }
 export interface IProduct {
   productName: string;
   idProduct: number;
-  salePrice: number;
+  salePrice: string;
   stock: number;
+  costPrice: string;
+  costPriceOld: string;
 }
 export interface IUnitsOfMeasure{
   units: IUnitOfMeasure[];
@@ -76,4 +81,5 @@ export interface IListProduct{
   productName: string;
   salePrice: string;
   stock: number;
+  id_product: number;
 }

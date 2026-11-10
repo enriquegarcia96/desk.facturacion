@@ -28,7 +28,7 @@ export const checkStock = (_: any, value: number): Promise<void> => {
 
 export const formattedMoney = (price: string): string => {
   const money = parseFloat(price) || 0;
-  return `L${money.toLocaleString('es-HN',
+  return `L ${money.toLocaleString('es-HN',
     { minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;

@@ -114,15 +114,16 @@ fn insert_product(
 
   let product_bar_code = request.bar_code.clone();
   let new_product: NewProduct = NewProduct {
-      product_name: request.product_name.trim().to_lowercase(),
-      modify_by: request.modify_by,
-      sale_price: request.sale_price,
-      cost_price: request.cost_price,
-      created_on: Some(get_now()),
-      updated_on: None,
-      bar_code: request.bar_code,
-      category_id: request.category_id,
-      id_unit_of_measure: request.type_measure,
+      product_name: request.product_name.trim().to_lowercase()
+      , modify_by: request.modify_by
+      , sale_price: request.sale_price
+      , cost_price: request.cost_price
+      , created_on: Some(get_now())
+      , updated_on: None
+      , bar_code: request.bar_code
+      , category_id: request.category_id
+      , id_unit_of_measure: request.type_measure
+      , old_cost_price: request.cost_price
   };
 
   let exist_product: Option<Product> = products
