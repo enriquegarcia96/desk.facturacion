@@ -134,7 +134,7 @@ export const InventoryTable = () => {
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Buscar por nombre`}
           value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
@@ -148,25 +148,14 @@ export const InventoryTable = () => {
             size="small"
             style={{ width: 90 }}
           >
-            Search
+            Buscar
           </Button>
           <Button
             onClick={() => clearFilters && handleReset(clearFilters)}
             size="small"
             style={{ width: 90 }}
           >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({ closeDropdown: false });
-              setSearchText((selectedKeys as string[])[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
+            Borrar
           </Button>
           <Button
             type="link"
@@ -175,7 +164,7 @@ export const InventoryTable = () => {
               close();
             }}
           >
-            close
+            cerrar
           </Button>
         </Space>
       </div>
@@ -204,9 +193,21 @@ export const InventoryTable = () => {
   });
 
   const expandColumns2: TableColumnsType<TableDataProduct> = [
-  {title: 'Producto', dataIndex: 'productName', key: 'productName', ...getColumnSearchProps('productName') },
-  { title: 'Stock', dataIndex: 'stock', key: 'stock', render: (_: any, record: TableDataProduct) => <Tag  key={'filled'} color={record.stock < 4 ? 'volcano' : "green"}>{record.stock}</Tag>},
-  {title: 'Precio Venta', dataIndex:'salePrice', key: 'salePrice', render: (value) => formattedMoney(value)},
+  {title: 'Nombre de producto'
+    , dataIndex: 'productName'
+    , key: 'productName'
+    , ...getColumnSearchProps('productName') 
+    , render: (value) => <p className='font-bold'>{value}</p>
+  },
+  {title: 'Stock', dataIndex: 'stock', key: 'stock',
+    render: (_: any, record: TableDataProduct) => 
+    <Tag className='font-medium' key={'filled'} color={record.stock < 4 ? 'volcano' : "green"}>{record.stock}</Tag>
+  },
+  {title: 'Precio Venta'
+    , dataIndex:'salePrice'
+    , key: 'salePrice'
+    , render: (value) => <p className='font-medium'>{formattedMoney(value)}</p>
+  }, 
   {title: 'Precio Costo', dataIndex:'costPrice', key: 'costPrice', 
     render: (_, product, index) => (
       <div className='flex flex-col' key={index}>
@@ -388,6 +389,3 @@ const handleSearch = (
     </>
   );
 };
-
-
-

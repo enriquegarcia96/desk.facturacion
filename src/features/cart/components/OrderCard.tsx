@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Card, Button } from 'antd';
-import { IoQrCodeSharp, IoSearch } from "react-icons/io5";
+import { IoBarcodeOutline, IoSearch } from "react-icons/io5";
 
 import {
   MinusOutlined,
@@ -13,6 +13,7 @@ import {
   CreditCardOutlined,
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cart.store';
+import { IOrderWithDetails } from '@interface/order.interface';
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },
@@ -25,11 +26,15 @@ const money = (n: number) => `L ${n.toLocaleString('es-HN')}`;
 
 export const OrderCard = () => {
   const [payment, setPayment] = useState('cash');
-  const items = useCartStore((state) => state.orderProducts);
+  const myOrder = useCartStore((state) => state.order);
   const increaseQuantity = useCartStore((state) => state.incrementQuantityAction);
   const decrementQuantity = useCartStore((state) => state.decrementQuantityAction);
+  const createInvoice = useCartStore((state) => state.createInvoiceAction);
+  
+  //TODO: revisar si esto esta bien
+  const listo = useCartStore((state) => state.order);
 
-  const subtotal = items.reduce((s, i) => s + Number(i.salePrice) * i.quantity, 0);
+  const subtotal = myOrder?.details?.reduce((s, i) => s + Number(i.salePrice) * i.quantity, 0) ?? 0;
   // const discount = items.reduce(
   //   (s, i) => s + (i.discount ? (i.salePrice * i.quantity * i.discount) / 100 : 0),
   //   0
@@ -40,20 +45,24 @@ export const OrderCard = () => {
     return () => {
       console.log('se limpia la orden')
     };
-  }, [items]);
+  }, [myOrder]);
 
-  const discount = items.reduce(
+  const discount = myOrder?.details.reduce(
     (s, i) => s + ((Number(i.salePrice) * i.quantity) / 100 ),
     0
   );
-  const total = subtotal; //- discount;
+  const total = subtotal ?? 0; //- discount;
+
+  const onCreateInvoice = async (order: IOrderWithDetails | null) => {
+    console.log(order)
+  }
   
   return (
     <div className="w-full h-150">
       <Card
         className="h-full w-full flex flex-col border-0! rounded-lg! bg-white!"
         title={<span className="text-xl font-bold">Orden de compra</span>}
-        extra={<span className="text-xs text-gray-500">23 de mayo de 2024, 18:39hs</span>}
+        extra={<span className="text-xs text-gray-500">{myOrder?.createdAt}</span>}
         styles={{
           //header: { borderBottom: 0, paddingTop: 13 },
           body: {
@@ -67,7 +76,7 @@ export const OrderCard = () => {
       >
         {/* Lista con scroll */}
         <div className="flex-1  overflow-y-auto">
-          {items.length > 0  ? items.map((item, index) => (
+          {(myOrder?.details.length ?? 0) > 0 ? myOrder?.details.map((item, index) => (
             <div key={index} className="flex justify-between py-1 border-b border-gray-200">
               <div>
                 <div className="text-sm">{item.productName}</div>
@@ -81,9 +90,9 @@ export const OrderCard = () => {
               <div className="flex flex-col items-end">
                 <span className="text-sm">{money(Number(item.salePrice) * item.quantity)}</span>
                 <div className="flex items-center gap-3">
-                  <MinusOutlined className="cursor-pointer" onClick={() => decrementQuantity(item.barCode, index)}/>
+                  <MinusOutlined className="cursor-pointer" onClick={() => decrementQuantity(item.idProduct, index)}/>
                   <span className="text-sm font-semibold">{item.quantity}</span>
-                  <PlusOutlined className="cursor-pointer" onClick={() => increaseQuantity(item.barCode, index)}/>
+                  <PlusOutlined className="cursor-pointer" onClick={() => increaseQuantity(item.idProduct, index)}/>
                 </div>
               </div>
             </div>
@@ -133,7 +142,12 @@ export const OrderCard = () => {
           <Button size="large" icon={<PauseOutlined />} className="font-semibold! border-black! border-2!">
             Pausar venta
           </Button>
-          <Button size="large" type="primary" className="bg-black! font-semibold!">
+          <Button 
+            size="large" 
+            type="primary" 
+            className="bg-black! font-semibold!"
+            onClick={() => onCreateInvoice(listo)}
+          >
             Efectuar venta
           </Button>
         </div>
@@ -152,7 +166,7 @@ export const OrderCard = () => {
 export const OrderCardEmpty = () => {
   return (
   <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
-    <IoQrCodeSharp size={30} />
+    <IoBarcodeOutline size={30} />
     <div>
       <p className="text-base font-bold">Escanear el código de barras</p>
       <p className="font-normal">para añadir productos a la orden de compra.</p>

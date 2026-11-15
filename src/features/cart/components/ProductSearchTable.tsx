@@ -5,7 +5,8 @@ import { Flex, Listy, Button, Tooltip, Spin, Empty } from "antd";
 import { formattedMoney } from "../../../utils";
 import { useCartStore } from "../store/cart.store";
 import { TableDataListProducts } from "@interface/TableType";
-import { IOrderProducts } from "@interface/order.interface";
+import { IOrderProducts, IAddedProduct } from "@interface/order.interface";
+import productoNoEncontradoImg from '../../../assets/producto_no_encontrado.svg';
 
 interface Props {
   onReset: () => void;
@@ -18,13 +19,13 @@ export const ProductSearchTable = ({onReset}: Props) => {
   const addedOrderProductsAction = useCartStore((state) => state.addedOrderProductAction);
 
   const items = products?.map<TableDataListProducts>(
-    ({ barCode, salePrice, productName, stock, id_product }) => ({
+    ({ barCode, salePrice, productName, stock, idProduct }) => ({
       key: barCode,
       barCode,
       productName,
       salePrice,
       stock,
-      id_product
+      idProduct
     }),
   );
 
@@ -34,11 +35,13 @@ export const ProductSearchTable = ({onReset}: Props) => {
 
   useEffect(() => {
     return () => {
+      console.log('clearTable')
       clearTable();
     }
   }, [clearTable]);
 
-  const addedOrderProducts = async (order: IOrderProducts) => {
+  const addedOrderProduct = async (order: IAddedProduct) => {
+    console.log('addedOrderProduct => ', order)
     const isAddedToOrder: boolean = await addedOrderProductsAction(order);
     
     if (!isAddedToOrder) {
@@ -57,7 +60,12 @@ export const ProductSearchTable = ({onReset}: Props) => {
       className="h-full"
     >
       {items?.length === 0 ? (
-        <Empty description={"Producto NO encontrado"} />
+        <Empty
+          className="flex flex-col items-center font-extrabold"
+          styles={{image:{ height: 200 }}}
+          image={productoNoEncontradoImg}
+          description={"Producto NO encontrado"}
+        />
       ) : (
         <Listy<TableDataListProducts>
           virtual
@@ -69,7 +77,7 @@ export const ProductSearchTable = ({onReset}: Props) => {
           classNames={{
             item: "border-b-2! border-solid! border-transparent! hover:border-black! hover:bg-[#7090b0]/20!",
           }}
-          itemRender={({barCode, productName, salePrice, stock, id_product}) => (
+          itemRender={({barCode, productName, salePrice, stock, idProduct}) => (
             <Tooltip title={`${productName} Existencias ${stock}`}>
               <Flex align="center" className="w-full">
                 <p className="text-sm font-semibold w-29 shrink-0 truncate">
@@ -86,12 +94,12 @@ export const ProductSearchTable = ({onReset}: Props) => {
                   icon={<PlusOutlined />}
                   title="Agregar producto"
                   className="font-bold! hover:bg-transparent!"
-                  onClick={() => addedOrderProducts({
+                  onClick={() => addedOrderProduct({
                     barCode,
                     productName,
                     salePrice,
                     quantity: 1,
-                    id_product
+                    idProduct
                   })}
                 >
                   Añadir

@@ -2,30 +2,40 @@ import { create } from "zustand";
 
 import { CartService } from "../services/cart.service";
 import { ProductToSearchRequest } from "@interface/Request";
-import {IOrderProducts} from '@interface/order.interface';
+import {IAddedProduct, IOrderProducts, IOrderWithDetails} from '@interface/order.interface';
 import { IActiveCategory, IListProduct } from "@interface/ApiResponse";
+import { fmtHN } from "../../../utils";
 
 interface CartState {
   categories: IActiveCategory[];
   products: IListProduct[] | null;
   orderProducts: IOrderProducts[];
+  order: IOrderWithDetails | null;
   isLoadingProductsToTable: boolean;
+  productAddedMessage: string | null;
+  isNewProductAdded: boolean;
 
   loadCategoryAction: () => Promise<void>;
   loadProductsToTableAction: (request: ProductToSearchRequest) => Promise<void>;
   clearProductTableAction: () => void;
-  addedOrderProductAction: (order: IOrderProducts) => Promise<boolean>;
-  incrementQuantityAction: (barCode: string, indexArray: number) => void;
-  decrementQuantityAction: (barCode: string, indexArray: number) => void;
+  addedOrderProductAction: (order: IAddedProduct) => Promise<boolean>;
+  incrementQuantityAction: (idProduct: number, indexArray: number) => void;
+  decrementQuantityAction: (idProduct: number, indexArray: number) => void;
+  clearMessage: () => void;
+  //TODO: crear la validacion del stock.
+  createInvoiceAction: () => Promise<boolean>;
 }
 
 export const useCartStore = create<CartState>()((set) => ({
   categories: [],
   orderProducts: [],
+  order: null,
   products: null,
   isLoadingProductsToTable: false,
+  productAddedMessage: null,
+  isNewProductAdded: false,
 
-  loadCategoryAction: async () => {
+  loadCategoryAction: async (): Promise<void> => {
     set({categories: []});
 
     try {
@@ -51,40 +61,72 @@ export const useCartStore = create<CartState>()((set) => ({
     }
   },
 
-  clearProductTableAction: () => {
+  clearProductTableAction: (): void => {
     set({products: null});
   },
 
-  addedOrderProductAction: async (order: IOrderProducts) : Promise<boolean> => {
+  clearMessage: () => set({productAddedMessage: null, isNewProductAdded: false}) ,
+
+  addedOrderProductAction: async (newProduct: IAddedProduct) : Promise<boolean> => {
     try {
-      set((state) => ({
-        orderProducts: [...state.orderProducts, order]
-      }));
-      //TODO: hacer el llamado  con el serviocio
+      set((state) => {
+        const existedOrder: IOrderWithDetails = state.order ?? {
+          createdAt: fmtHN(),
+          details: [],
+          removedProducts: []
+        };
+        
+        return {
+          order: {
+            ...existedOrder,
+            details: [...existedOrder.details, newProduct]
+          }
+        }
+      });
       return true;
     } catch (error) {
       console.error(error);
+      set({productAddedMessage: null,  isNewProductAdded: false});
       return false;
+    }finally{
+      set({productAddedMessage: 'Nuevo producto agregado', isNewProductAdded: true});
     }
   },
 
-  incrementQuantityAction: (barCode: string, indexArray: number): void => {
-    set((state) => ({
-      orderProducts: state.orderProducts.map((p, index) => (
-        p.barCode === barCode && index === indexArray 
-          ? {...p, quantity: p.quantity + 1} 
+  incrementQuantityAction: (idProduct: number, indexArray: number): void => {
+    set(({order}) => {
+
+      if(!order) return {};
+
+      return {
+        order: {
+        ...order,
+        details: order?.details.map((product, index) =>
+          product.idProduct === idProduct && index === indexArray
+          ? {...product, quantity: product.quantity + 1}
+          : product
+          ),
+        },
+      };
+    })
+  },
+
+  decrementQuantityAction: (idProduct: number, indexArray: number): void => {
+    set(({order}) => ({
+      order: order && {
+        ...order,
+        details: order?.details.map((p, index) => 
+          p.idProduct === idProduct && index === indexArray
+          ? {...p, quantity: p.quantity - 1}
           : p
-      ))
+        )
+        .filter((product) => product.quantity > 0)
+      }
     }))
   },
 
-  decrementQuantityAction: (barCode: string, indexArray: number) => {
-    set((state) => ({
-      orderProducts: state.orderProducts.map((p, index) =>
-        p.barCode === barCode && index === indexArray ?
-        {...p, quantity: p.quantity - 1} : p
-      )
-      .filter((product) => product.quantity > 0)
-    }))
+  createInvoiceAction: async (): Promise<boolean> =>  {
+    return true;
   }
+
 }))
