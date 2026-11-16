@@ -4,3 +4,5 @@ pub mod unit_of_measure;
 pub mod product_model;
 pub mod inventory_model;
 pub mod order_model;
+pub mod order_details;
+pub mod invoice;
