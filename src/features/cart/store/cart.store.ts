@@ -23,7 +23,7 @@ interface CartState {
   decrementQuantityAction: (idProduct: number, indexArray: number) => void;
   clearMessage: () => void;
   //TODO: crear la validacion del stock.
-  createInvoiceAction: () => Promise<boolean>;
+  createInvoiceAction: (order: IOrderWithDetails, identityEmployee: string) => Promise<boolean>;
 }
 
 export const useCartStore = create<CartState>()((set) => ({
@@ -125,8 +125,17 @@ export const useCartStore = create<CartState>()((set) => ({
     }))
   },
 
-  createInvoiceAction: async (): Promise<boolean> =>  {
-    return true;
+  createInvoiceAction: async (order: IOrderWithDetails, identityEmployee: string): Promise<boolean> =>  {
+    try {
+      const ss = await CartService.newInvoice(order, identityEmployee);
+      console.log('serocioo siuuu ', ss)
+      return true;
+    } catch (error) {
+      console.error(error)
+      return false;
+    }finally{
+      //TODO: limpiar la orden para quede limpio
+    }
   }
 
 }))

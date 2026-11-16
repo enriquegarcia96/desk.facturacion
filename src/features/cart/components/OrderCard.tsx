@@ -14,6 +14,8 @@ import {
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cart.store';
 import { IOrderWithDetails } from '@interface/order.interface';
+import { useAuthStore } from '../../auth/store/auth.store';
+import {printInvoice} from '../../../utils';
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },
@@ -27,6 +29,7 @@ const money = (n: number) => `L ${n.toLocaleString('es-HN')}`;
 export const OrderCard = () => {
   const [payment, setPayment] = useState('cash');
   const myOrder = useCartStore((state) => state.order);
+  const employee = useAuthStore((state) => state.user);
   const increaseQuantity = useCartStore((state) => state.incrementQuantityAction);
   const decrementQuantity = useCartStore((state) => state.decrementQuantityAction);
   const createInvoice = useCartStore((state) => state.createInvoiceAction);
@@ -41,10 +44,8 @@ export const OrderCard = () => {
   // );
 
   useEffect(() => {
-    console.log('se recarga el componenete ?')
-    return () => {
-      console.log('se limpia la orden')
-    };
+    // return () => {
+    // };
   }, [myOrder]);
 
   const discount = myOrder?.details.reduce(
@@ -53,8 +54,18 @@ export const OrderCard = () => {
   );
   const total = subtotal ?? 0; //- discount;
 
-  const onCreateInvoice = async (order: IOrderWithDetails | null) => {
-    console.log(order)
+  const onCreateInvoice = async (order: IOrderWithDetails | null, identityEmployee: string) => {
+    if (!order) return;
+    
+    const isCorrect: boolean = await createInvoice(order, identityEmployee);
+    if (!isCorrect) {
+      //TODO: volver a intentar
+      return;
+    }
+
+    //traer los items
+
+    printInvoice();
   }
   
   return (
@@ -146,7 +157,7 @@ export const OrderCard = () => {
             size="large" 
             type="primary" 
             className="bg-black! font-semibold!"
-            onClick={() => onCreateInvoice(listo)}
+            onClick={() => onCreateInvoice(listo, employee?.identityEmployee!)}
           >
             Efectuar venta
           </Button>
