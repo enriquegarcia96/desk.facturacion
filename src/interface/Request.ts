@@ -1,3 +1,5 @@
+import { IOrderWithDetails } from "./order.interface";
+
 export interface LoginRequest {
   userName: string;
   password: string;
@@ -44,4 +46,9 @@ export interface UpdateStateUserRequest {
 export interface ProductToSearchRequest {
   codeBarOrProductName?: string;
   categoryId?: number;
+}
+
+export interface ICreateInvoiceRequest extends IOrderWithDetails {
+  paymentMethod: number;
+  identityEmployee: string;
 }

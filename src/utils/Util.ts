@@ -12,7 +12,7 @@ export const formatterToStock: InputNumberProps<number>['formatter'] = (value) =
     return `${end ? `${v}.${end}` : `${v}`}`;
 };
 
-export const checkPrice = (_: any, value: number) => {
+export const checkPrice = (_: any, value: number): Promise<void> => {
   if (value > 0) {
     return Promise.resolve();
   }
@@ -33,3 +33,17 @@ export const formattedMoney = (price: string): string => {
       maximumFractionDigits: 2
     })}`;
 }
+
+export const fechaActual = (): string => {
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('sv-SE');
+  const hora = ahora.toLocaleTimeString('en-GB');
+  return `${fecha} ${hora}`;
+}
+
+export const fmtHN = (): string => new Intl.DateTimeFormat('sv-SE',{
+  year: 'numeric', month: '2-digit', day: '2-digit'
+  , hour: '2-digit', minute: '2-digit', second: '2-digit'
+  , hour12: false
+  , timeZone: 'America/Tegucigalpa'
+}).format(new Date)
