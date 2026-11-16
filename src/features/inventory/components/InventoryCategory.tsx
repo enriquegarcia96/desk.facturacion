@@ -8,7 +8,7 @@ import { useInventoryStore } from '../store/inventory.store';
 
 export const InventoryCategory = () => {
   const [form] = Form.useForm();
-  const [clientReady, setClientReady] = useState<boolean>(false);
+  const [_clientReady, setClientReady] = useState<boolean>(false);
   const {addNewCategoryAction} = useInventoryStore();
   const employee = useAuthStore((state) => state.user);
 
@@ -22,6 +22,7 @@ export const InventoryCategory = () => {
       userName: employee?.userName || 'sys'
     };
     addNewCategoryAction(newRequest);
+    form.resetFields();
   };
 
   return (
@@ -29,12 +30,17 @@ export const InventoryCategory = () => {
       <Form form={form} name='horizontal_login' layout='inline' onFinish={onFinish}>
       <Form.Item
         name='nameCategory'
-        rules={[{ required: true, message: 'Por favor, ingrese un nombre' }]}
+        label={'Crear Categoria'}
+        className='font-extrabold'
+        rules={[
+          {required: true, message: 'Favor, ingrese un nombre'}
+          , {whitespace: true, message: 'No se aceptan campos vacios'}
+        ]}
         extra='Máximo 40 caracteres'
       >
         <Input
           prefix={<IoFileTrayFullOutline />}
-          placeholder='Ej. Cereales'
+          placeholder='Ej. Refrescos'
           maxLength={40}
           minLength={1}
         />
@@ -46,13 +52,13 @@ export const InventoryCategory = () => {
             icon={<IoAddOutline />}
             type='primary'
             htmlType='submit'
-            disabled={
-              !clientReady ||
-              !form.isFieldsTouched(true) ||
-              form.getFieldsError().some(({ errors }) => errors.length)
-            }
+            // disabled={
+            //   !clientReady ||
+            //   !form.isFieldsTouched(true) ||
+            //   form.getFieldsError().some(({ errors }) => errors.length)
+            // }
           >
-            Nueva Categoria
+            Guardar Categoria
           </Button>
         )}
       </Form.Item>

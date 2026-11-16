@@ -28,23 +28,24 @@ export interface IAuthEmployee {
 export interface ICategories{
   categories: ICategory[];
 }
-
 export interface ICategory {
   nameCategory: string;
   idCategory: number;
 }
-
 export interface IProducts {
   products: IProduct[];
 }
-
+export interface IProductsTable {
+  products:  IListProduct[];
+}
 export interface IProduct {
   productName: string;
   idProduct: number;
-  salePrice: number;
+  salePrice: string;
   stock: number;
+  costPrice: string;
+  costPriceOld: string;
 }
-
 export interface IUnitsOfMeasure{
   units: IUnitOfMeasure[];
 }
@@ -67,4 +68,18 @@ export interface IEmployee{
   state: boolean;
   fullName: string;
   userName: string;
+}
+export interface IActiveCategories {
+  categories: IActiveCategory[];
+}
+export interface IActiveCategory {
+  value: number;
+  label: string;
+}
+export interface IListProduct{
+  barCode: string;
+  productName: string;
+  salePrice: string;
+  stock: number;
+  id_product: number;
 }

@@ -78,6 +78,7 @@ export const useInventoryStore = create<InventoryState>()((set, get) => ({
 
     try {
       const {data, code} = await InventoryService.getProductsByIdCategory(request);
+      console.log(data);
       if (code != 200 ) {
         set({products: []});
       }

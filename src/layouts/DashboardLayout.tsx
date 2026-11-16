@@ -1,16 +1,13 @@
-
 import { Outlet } from 'react-router';
 import { SideMenu } from '../components';
 
 const DashboardLayout = () => {
   return (
-    <div className="bg-slate-200 overflow-y-scroll w-screen h-screen antialiased text-slate-900 selection:bg-blue-900 selection:text-white">
-      <div className="flex flex-row relative w-screen">
-        <SideMenu />
-        <div className="w-full p-4">
-          <Outlet />
-        </div>
-      </div>
+    <div className="flex h-dvh w-full bg-slate-200 antialiased text-slate-900 selection:bg-blue-900 selection:text-white">
+      <SideMenu />
+      <main className="flex-1 min-w-0 min-h-0 overflow-y-auto">
+        <Outlet />
+      </main>
     </div>
   );
 };

@@ -15,6 +15,7 @@ pub struct NewProduct {
   pub bar_code: String,
   pub category_id: i32,
   pub id_unit_of_measure: i32,
+  pub old_cost_price: Decimal
 }
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = crate::schema::products)]

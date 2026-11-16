@@ -13,7 +13,7 @@ export const InventoryPage = () => {
 
   return (
     <div>
-      <h1>Categorias</h1>
+      <h1>Control de Productos</h1>
       <Message 
         messageToUser={messageNewCategory}
         typeMessage={newCategoryLoad ? 'success' : 'error'}

@@ -1,3 +1,5 @@
+use chrono::{NaiveDateTime, Utc};
+
 pub fn uppercase_words(data: String) -> String {
   let mut result: String = String::new();
   let mut first: bool = true;
@@ -14,4 +16,8 @@ pub fn uppercase_words(data: String) -> String {
     }
   }
   result
+}
+
+pub fn get_now() -> NaiveDateTime {
+  Utc::now().naive_utc()
 }

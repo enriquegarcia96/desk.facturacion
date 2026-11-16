@@ -12,7 +12,7 @@ export const InputsToProduct = () => {
       <div className="flex flex-row justify-center gap-2">
         <Form.Item
           name="productName"
-          label="Producto"
+          label="Nombre del producto"
           className='font-bold'
           rules={[
             { required: true, message: "Requerido" },

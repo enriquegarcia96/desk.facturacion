@@ -1,5 +1,5 @@
-use rust_decimal::Decimal;
 use serde::Deserialize;
+use rust_decimal::Decimal;
 use chrono::NaiveDateTime;
 
 use crate::constants::action::ActionsCrud;
@@ -18,4 +18,11 @@ pub struct ProductDto {
   pub category_id: i32,
   pub type_measure: i32,
   pub stock_quantity: Decimal
+}
+
+#[derive(Clone, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ProductToSearchRequest {
+  pub code_bar_or_product_name: Option<String>,
+  pub category_id: Option<i32>
 }

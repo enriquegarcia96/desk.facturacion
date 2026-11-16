@@ -27,7 +27,6 @@ export const TableUsers = () => {
   }, [getEmployeesAction]);
 
   const confirm = async (record: TableDataEmployee) => {
-    console.log(record);
     const request: UpdateStateUserRequest = {
       state: !record.state,
       userName: record.userName

@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>()((set, get) =>({
       for(const emp of response.data.employee){
         set({user: emp, isError: false});
       }
-      return response
+      return response;
     } catch (error) {
       console.error(error);
       const response = error as IApiResponse<IAuth>;

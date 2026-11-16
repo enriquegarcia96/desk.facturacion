@@ -13,7 +13,7 @@ export const InputsToInventory = () => {
       <div className='flex flex-row justify-center gap-2'>
         <Form.Item
           name='stockQuantity'
-          label='Stock'
+          label='Unidades de stock'
           className='font-bold'
           rules={[{ required: true, validator: checkStock }]}
           initialValue={0}

@@ -27,6 +27,8 @@ pub fn run() {
       ,commands::employee::command_get_roles
       ,commands::employee::command_get_employees
       ,commands::employee::command_update_state
+      ,commands::cart::command_active_categories
+      ,commands::cart::command_search_product
     ])
     .plugin(tauri_plugin_log::Builder::new().build())
     .run(tauri::generate_context!())
