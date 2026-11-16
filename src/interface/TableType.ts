@@ -21,5 +21,5 @@ export interface TableDataListProducts {
   productName: string;
   salePrice: string;
   stock: number;
-  id_product: number;
+  idProduct: number;
 }
