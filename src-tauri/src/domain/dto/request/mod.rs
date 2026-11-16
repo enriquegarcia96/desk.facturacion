@@ -2,3 +2,4 @@ pub mod login_dto;
 pub mod employee_dto;
 pub mod category_dto;
 pub mod product_dto;
+pub mod invoice_dto;
