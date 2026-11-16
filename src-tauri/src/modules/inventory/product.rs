@@ -127,26 +127,26 @@ fn insert_product(
   };
 
   let exist_product: Option<Product> = products
-      .filter(bar_code.eq(product_bar_code))
-      .select(Product::as_select())
-      .first::<Product>(conn)
-      .optional()
-      .map_err(|e| {
-          ApiResponse::new_error(
-          format!("ERROR"),
-          Constants::UNAUTHORIZED,
-          format!("error al buscar el producto {:?}", e),
-          )
-      })?;
+    .filter(bar_code.eq(product_bar_code))
+    .select(Product::as_select())
+    .first::<Product>(conn)
+    .optional()
+    .map_err(|e| {
+      ApiResponse::new_error(
+      format!("ERROR"),
+      Constants::UNAUTHORIZED,
+      format!("error al buscar el producto {:?}", e),
+      )
+    })?;
 
   info!("#Producto encontrado? {:?}", exist_product.is_some());
   
   if exist_product.is_some() {
-      return Err(ApiResponse::new_error(
-        "ERROR".to_string(),
-        Constants::CONFLICT,
-        "El codigo de barra ya existe".to_string()
-      ));
+    return Err(ApiResponse::new_error(
+      "ERROR".to_string(),
+      Constants::CONFLICT,
+      "El codigo de barra ya existe".to_string()
+    ));
   }
 
   insert_into(products)

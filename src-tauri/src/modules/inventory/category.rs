@@ -30,7 +30,6 @@ pub async fn create_new_category(state: State<'_, DbPool>, request: NewCategoryD
 
   if result_query.is_empty() {
     info!("#crea nueva categoria");
-    //Some(Utc::now().naive_utc())
     let category_name: String = request.name_category.trim().to_lowercase();
     let new_category: NewCategory = NewCategory {
       category_name: uppercase_words(category_name),
