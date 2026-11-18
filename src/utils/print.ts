@@ -1,25 +1,30 @@
 import {
   list_thermal_printers,
+  print_thermal_printer,
   ENCODE,
   PrinterInfo,
   PrintJobRequest,
-  print_thermal_printer,
-  test_thermal_printer,
-  TestPrintRequest
+  title,
+  text,
+  line,
+  feed,
+  cut,
+  table,
+  TEXT_ALIGN,
 } from "tauri-plugin-thermal-printer";
 
 import { PARAMETERS } from "./../config";
+import {formattedMoney} from '../utils';
+import { IInvoice, IInvoiceDetail } from "@interface/ApiResponse";
 
-interface Pros {}
-
-export const printInvoice = async (): Promise<void> => {
+export const printInvoice = async ({dateInvoice, invoiceDetail, totalAmountInvoice}: IInvoice): Promise<boolean> => {
   let printers: PrinterInfo[];
 
   try {
     printers = await list_thermal_printers();
   } catch (error) {
     console.log("Lista de impresoras fallida: " + error);
-    return;
+    return false;
   }
 
   const printerSelected: PrinterInfo = printers.find(
@@ -28,9 +33,22 @@ export const printInvoice = async (): Promise<void> => {
 
   if (!printerSelected) {
     alert("No hay una impresora seleccionada.");
-    return;
+    return false;
   }
 
+  const ticket: PrintJobRequest = buildPrintRequest(dateInvoice, invoiceDetail, totalAmountInvoice, printerSelected);
+
+  try {
+    await print_thermal_printer(ticket);
+    return true;
+  } catch (error) {
+    console.error("Error al imprimir:", error);
+    return false;
+  }
+};
+
+
+const buildPrintRequest = (dateInvoice: string, invoiceDetail: IInvoiceDetail[], totalAmountInvoice: string, printerSelected: PrinterInfo): PrintJobRequest => {
   const ticket: PrintJobRequest = {
     printer: printerSelected.name,
     paper_size: "Mm80",
@@ -40,55 +58,58 @@ export const printInvoice = async (): Promise<void> => {
       use_gbk: false,
     },
     sections: [
-      { Title: { text: PARAMETERS.COMMERCE_NAME } },
-      { Feed: { feed_type: "lines", value: 1 } },
-      {
-        Text: {
-          text: "Bienvenido",
-          styles: { align: "center", size: "height", bold: false },
-        },
-      },
-      {
-        Text: {
-          text: "Su turno es:",
-          styles: { align: "center", size: "height", bold: false },
-        },
-      },
-      { Feed: { feed_type: "lines", value: 1 } },
-      {
-        Text: {
-          text: "newTicket.ticket",
-          styles: {
-            bold: true,
-            align: "center",
-            size: "double",
-            double_strike: true,
-          },
-        },
-      },
-      { Feed: { feed_type: "lines", value: 1 } },
-      { Subtitle: { text: "newTicket.bankName", styles: { align: "center" } } },
-      {
-        Subtitle: {
-          text: "newTicket.creationDate",
-          styles: { align: "center" },
-        },
-      },
-      { Feed: { feed_type: "lines", value: 2 } },
-      {
-        Text: {
-          text: "Desarrollado Por Aurora Core",
-          styles: { align: "left" },
-        },
-      },
-      { Line: { character: "=" } },
-      { Cut: { mode: "partial", feed: 0 } },
+      title(PARAMETERS.COMMERCE_NAME),
+      text(dateInvoice.replace('T', ''), {
+        align: TEXT_ALIGN.CENTER,
+      }),
+      feed(1),
+      table(
+        6,
+        [[
+            text("CANT", { bold: true, align: TEXT_ALIGN.RIGHT, size: "double" }),
+            text("PRODUCTO", { bold: true }),
+            text(" "),
+            text("PRECIO", { bold: true, align: TEXT_ALIGN.RIGHT, size: 'width' }),
+            text(" "),
+            text("MONTO", { bold: true, align: TEXT_ALIGN.RIGHT, size: 'height' }),
+        ]],
+        { column_widths: [6, 20, 1, 10, 1, 10], truncate: false },
+      ),
+      line("="),
+      text("* * * * *", { align: TEXT_ALIGN.CENTER}),
+      line("="),
+      table(
+        6,
+        invoiceDetail.map((item) => [
+          text(String(item.quantityProduct), { align: TEXT_ALIGN.RIGHT }),
+          text(item.productName),
+          text(" "),
+          text(formattedMoney(item.salePrice), { align: TEXT_ALIGN.RIGHT }),
+          text(" "),
+          text(formattedMoney(item.amount), {align: TEXT_ALIGN.RIGHT})
+        ]),
+        { column_widths: [6, 20, 1, 10, 1, 10], truncate: false, word_wrap: true },
+      ),
+      line("-"),
+      // Totales
+      table(
+        2,
+        [
+          [text("SUBTOTAL:"), text(formattedMoney(totalAmountInvoice), { align: TEXT_ALIGN.RIGHT })],
+          [
+            text("TOTAL:", { bold: true }),
+            text(formattedMoney(totalAmountInvoice), { bold: true, align: TEXT_ALIGN.RIGHT }),
+          ],
+        ],
+        { column_widths: [32, 16], truncate: false },
+      ),
+      line("="),
+
+      feed(1),
+      text("Gracias por su compra", { align: TEXT_ALIGN.CENTER }),
+      feed(2),
+      cut(),
     ],
   };
-
-  try {
-    await print_thermal_printer(ticket);
-  } catch (error) {
-    console.error("Error al imprimir:", error);
-  }
-};
+  return ticket;
+}
