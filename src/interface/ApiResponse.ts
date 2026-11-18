@@ -24,7 +24,6 @@ export interface IAuthEmployee {
   roleName: string;
   state: number;
 }
-
 export interface ICategories{
   categories: ICategory[];
 }
@@ -82,4 +81,21 @@ export interface IListProduct{
   salePrice: string;
   stock: number;
   idProduct: number;
+}
+export interface IInvoiceId{
+  invoiceId: number;
+}
+export interface IInvoiceClient{
+  invoice: IInvoice
+}
+export interface IInvoice {
+  dateInvoice: string
+  , totalAmountInvoice: string
+  , invoiceDetail: IInvoiceDetail[]
+}
+export interface IInvoiceDetail {
+  amount: string
+  , productName: string
+  , quantityProduct: string
+  , salePrice: string
 }

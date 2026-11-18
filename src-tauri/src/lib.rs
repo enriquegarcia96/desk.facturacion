@@ -14,6 +14,7 @@ pub fn run() {
 
   tauri::Builder::default()
     .plugin(tauri_plugin_opener::init())
+    .plugin(tauri_plugin_thermal_printer::init())
     .manage(pool)
     .invoke_handler(tauri::generate_handler![
       commands::auth::command_authentication
@@ -29,6 +30,8 @@ pub fn run() {
       ,commands::employee::command_update_state
       ,commands::cart::command_active_categories
       ,commands::cart::command_search_product
+      ,commands::cart::command_new_invoice
+      ,commands::invoice::command_products_by_invoice
     ])
     .plugin(tauri_plugin_log::Builder::new().build())
     .run(tauri::generate_context!())

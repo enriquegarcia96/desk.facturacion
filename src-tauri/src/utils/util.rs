@@ -1,4 +1,8 @@
-use chrono::{NaiveDateTime, Utc};
+use std::fmt::format;
+
+use chrono::{DateTime, NaiveDateTime};
+use chrono::{Local, TimeZone, Utc, FixedOffset};
+use diesel::result::Error::DeserializationError;
 
 pub fn uppercase_words(data: String) -> String {
   let mut result: String = String::new();
@@ -20,4 +24,15 @@ pub fn uppercase_words(data: String) -> String {
 
 pub fn get_now() -> NaiveDateTime {
   Utc::now().naive_utc()
+}
+
+pub fn format_utc_as_honduras_time(date: NaiveDateTime) -> String {
+  let time_hn = FixedOffset::west_opt(6 * 3600).unwrap();
+
+  let fecha_actual = Utc.from_utc_datetime(&date)
+    .with_timezone(&time_hn)
+    .format("%Y-%m-%d %H:%M:%S")
+    .to_string();
+
+  fecha_actual
 }

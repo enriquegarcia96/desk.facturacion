@@ -16,6 +16,7 @@ import { useCartStore } from '../store/cart.store';
 import { IOrderWithDetails } from '@interface/order.interface';
 import { useAuthStore } from '../../auth/store/auth.store';
 import {printInvoice} from '../../../utils';
+import { IInvoiceId } from '@interface/ApiResponse';
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },
@@ -30,9 +31,11 @@ export const OrderCard = () => {
   const [payment, setPayment] = useState('cash');
   const myOrder = useCartStore((state) => state.order);
   const employee = useAuthStore((state) => state.user);
+  const createInvoice = useCartStore((state) => state.createInvoiceAction);
   const increaseQuantity = useCartStore((state) => state.incrementQuantityAction);
   const decrementQuantity = useCartStore((state) => state.decrementQuantityAction);
-  const createInvoice = useCartStore((state) => state.createInvoiceAction);
+  const getProductsByInvoice = useCartStore((state) => state.getProductsByInvoiceAction);
+  const clearMyOrder = useCartStore((state) => state.clearOrder);
   
   //TODO: revisar si esto esta bien
   const listo = useCartStore((state) => state.order);
@@ -54,18 +57,19 @@ export const OrderCard = () => {
   );
   const total = subtotal ?? 0; //- discount;
 
-  const onCreateInvoice = async (order: IOrderWithDetails | null, identityEmployee: string) => {
+  const onCreateInvoice = async (order: IOrderWithDetails, identityEmployee: string) => {
     if (!order) return;
     
-    const isCorrect: boolean = await createInvoice(order, identityEmployee);
-    if (!isCorrect) {
+    const {invoiceId} = await createInvoice(order, identityEmployee);
+    if (invoiceId === 0) {
       //TODO: volver a intentar
       return;
     }
-
-    //traer los items
-
-    printInvoice();
+    const invoice = await getProductsByInvoice(invoiceId);
+    const isPrintSuccessful: boolean = await printInvoice(invoice);
+    if (isPrintSuccessful) {
+      clearMyOrder();
+    }
   }
   
   return (
@@ -149,15 +153,15 @@ export const OrderCard = () => {
         </div>
 
         {/* Acciones */}
-        <div className="grid grid-cols-[1fr_1.4fr] gap-3 mt-4">
-          <Button size="large" icon={<PauseOutlined />} className="font-semibold! border-black! border-2!">
+        <div className="grid grid-cols-[1fr_1.4fr] gap-3 mt-4 border">
+          {/* <Button size="large" icon={<PauseOutlined />} className="font-semibold! border-black! border-2!">
             Pausar venta
-          </Button>
+          </Button> */}
           <Button 
-            size="large" 
-            type="primary" 
+            size="large"
+            type="primary"
             className="bg-black! font-semibold!"
-            onClick={() => onCreateInvoice(listo, employee?.identityEmployee!)}
+            onClick={() => onCreateInvoice(listo!, employee?.identityEmployee!)}
           >
             Efectuar venta
           </Button>

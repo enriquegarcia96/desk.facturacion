@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { IOrderWithDetails } from "@interface/order.interface";
 import { ICreateInvoiceRequest, ProductToSearchRequest } from "@interface/Request";
-import { IActiveCategories, IApiResponse, IProductsTable } from "@interface/ApiResponse";
+import { IActiveCategories, IApiResponse, IInvoice, IInvoiceClient, IInvoiceId, IProductsTable } from "@interface/ApiResponse";
 
 export class CartService {
   static getCategories = async(): Promise<IApiResponse<IActiveCategories>> => {
@@ -13,7 +13,7 @@ export class CartService {
     return invoke<IApiResponse<IProductsTable>>('command_search_product', {request});
   }
   
-  static newInvoice = async(order: IOrderWithDetails, identityEmployee: string): Promise<IApiResponse<any>> => {
+  static newInvoice = async(order: IOrderWithDetails, identityEmployee: string): Promise<IApiResponse<IInvoiceId>> => {
     const request: ICreateInvoiceRequest = {
       createdAt: order.createdAt,
       paymentMethod: 1,
@@ -22,7 +22,11 @@ export class CartService {
       removedProducts: order.removedProducts
     };
     
-    return invoke<IApiResponse<any>>('command_new_invoice', {request});
+    return invoke<IApiResponse<IInvoiceId>>('command_new_invoice', {request});
+  }
+
+  static getProductsByInvoice = async(invoiceId: number): Promise<IApiResponse<IInvoiceClient>> => {
+    return invoke<IApiResponse<IInvoiceClient>>('command_products_by_invoice', {invoiceId});
   }
 
 }
