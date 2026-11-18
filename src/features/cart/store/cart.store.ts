@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { CartService } from "../services/cart.service";
 import { ProductToSearchRequest } from "@interface/Request";
 import {IAddedProduct, IOrderProducts, IOrderWithDetails} from '@interface/order.interface';
-import { IActiveCategory, IListProduct } from "@interface/ApiResponse";
+import { IActiveCategory, IInvoice, IInvoiceClient, IInvoiceId, IListProduct } from "@interface/ApiResponse";
 import { fmtHN } from "../../../utils";
 
 interface CartState {
@@ -22,8 +22,10 @@ interface CartState {
   incrementQuantityAction: (idProduct: number, indexArray: number) => void;
   decrementQuantityAction: (idProduct: number, indexArray: number) => void;
   clearMessage: () => void;
+  clearOrder: () => void;
   //TODO: crear la validacion del stock.
-  createInvoiceAction: (order: IOrderWithDetails, identityEmployee: string) => Promise<boolean>;
+  createInvoiceAction: (order: IOrderWithDetails, identityEmployee: string) => Promise<IInvoiceId>;
+  getProductsByInvoiceAction: (invoiceId: number) => Promise<IInvoice>;
 }
 
 export const useCartStore = create<CartState>()((set) => ({
@@ -66,6 +68,8 @@ export const useCartStore = create<CartState>()((set) => ({
   },
 
   clearMessage: () => set({productAddedMessage: null, isNewProductAdded: false}) ,
+
+  clearOrder: () => set({order: null}),
 
   addedOrderProductAction: async (newProduct: IAddedProduct) : Promise<boolean> => {
     try {
@@ -125,16 +129,33 @@ export const useCartStore = create<CartState>()((set) => ({
     }))
   },
 
-  createInvoiceAction: async (order: IOrderWithDetails, identityEmployee: string): Promise<boolean> =>  {
+  createInvoiceAction: async (order: IOrderWithDetails, identityEmployee: string): Promise<IInvoiceId> =>  {
     try {
-      const ss = await CartService.newInvoice(order, identityEmployee);
-      console.log('serocioo siuuu ', ss)
-      return true;
+      const {code, data} = await CartService.newInvoice(order, identityEmployee);
+      if(code === 200){
+        return data;
+      }
+      return { invoiceId: 0 };
     } catch (error) {
-      console.error(error)
-      return false;
+      console.error(error);
+      const ss: IInvoiceId = {
+        invoiceId: 0
+      };
+      
+      return  ss;
     }finally{
       //TODO: limpiar la orden para quede limpio
+    }
+  },
+
+  getProductsByInvoiceAction: async (invoiceId: number): Promise<IInvoice> => {
+    try {
+      const {data} = await CartService.getProductsByInvoice(invoiceId);
+      return data.invoice;
+    } catch (error) {
+      console.error(error);
+      const dd: IInvoice = {dateInvoice: '', invoiceDetail: [], totalAmountInvoice: ''};
+      return dd;
     }
   }
 
