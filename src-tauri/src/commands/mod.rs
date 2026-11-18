@@ -3,3 +3,4 @@ pub mod configuration;
 pub mod inventory;
 pub mod employee;
 pub mod cart;
+pub mod invoice;
