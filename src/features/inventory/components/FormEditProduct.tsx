@@ -1,6 +1,6 @@
 import { lazy, useEffect, useState } from 'react';
 
-import {  Form, Modal, Tag } from 'antd';
+import {  Form, Modal } from 'antd';
 
 import { InputsToSale } from './InputsToSale';
 import { InputsToProduct } from './InputsToProduct';
@@ -8,15 +8,15 @@ import { NewProductRequest } from '@interface/Request';
 import { InputsToInventory } from './InputsToInventory';
 import { useAuthStore } from '../../auth/store/auth.store';
 import { useInventoryStore } from '../store/inventory.store';
+import { IEditableProduct } from '@interface/product.interface';
 
 const Message = lazy(() => import('../../../components/shared/Message/Message'));
 
 type Props = {
   openModal: boolean;
   typeAction: string;
-  categoryId: number;
   onClosed: () => void;
-  nameCategory: string;
+  product: IEditableProduct;
 }
 
 const colors: string[] = [
@@ -36,7 +36,7 @@ const colors: string[] = [
   '#108ee9'
 ];
 
-export const FormEditProduct = ({ openModal, onClosed, typeAction, categoryId, nameCategory }: Props) => {
+export const FormEditProduct = ({ openModal, onClosed, typeAction, product }: Props) => {
   const [form] = Form.useForm();
 
   const modifyBy = useAuthStore((state) => state.user?.userName || 'sys');
@@ -47,11 +47,11 @@ export const FormEditProduct = ({ openModal, onClosed, typeAction, categoryId, n
   );
 
   useEffect(() => {
-    
+    console.log('se crea FormEditProduct', product)
   }, []);
 
   const onCreate = async (values: NewProductRequest) => {
-    const request: NewProductRequest = {...values, typeAction, modifyBy, categoryId};
+    const request: NewProductRequest = {...values, typeAction, modifyBy};
     const isCreateCorrect: boolean = await createNewProductAction(request);
 
     if (!isCreateCorrect) {
@@ -68,9 +68,9 @@ export const FormEditProduct = ({ openModal, onClosed, typeAction, categoryId, n
     <div className="flex items-center justify-between pr-6">
       <p className='font-bold text-base'>Editar Producto en</p>
       
-      <Tag color={color} variant="solid" className='font-extrabold! text-base!'>
+      {/* <Tag color={color} variant="solid" className='font-extrabold! text-base!'>
         {nameCategory}
-      </Tag>
+      </Tag> */}
     </div>
   );
 
