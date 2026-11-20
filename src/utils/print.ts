@@ -17,7 +17,7 @@ import { PARAMETERS } from "./../config";
 import {formattedMoney} from '../utils';
 import { IInvoice, IInvoiceDetail } from "@interface/ApiResponse";
 
-export const printInvoice = async ({dateInvoice, invoiceDetail, totalAmountInvoice}: IInvoice): Promise<boolean> => {
+export const printInvoice = async ({dateInvoice, invoiceDetail, totalAmountInvoice, idInvoice}: IInvoice): Promise<boolean> => {
   let printers: PrinterInfo[];
 
   try {
@@ -36,7 +36,7 @@ export const printInvoice = async ({dateInvoice, invoiceDetail, totalAmountInvoi
     return false;
   }
 
-  const ticket: PrintJobRequest = buildPrintRequest(dateInvoice, invoiceDetail, totalAmountInvoice, printerSelected);
+  const ticket: PrintJobRequest = buildPrintRequest(dateInvoice, invoiceDetail, totalAmountInvoice, printerSelected, idInvoice);
 
   try {
     await print_thermal_printer(ticket);
@@ -48,7 +48,7 @@ export const printInvoice = async ({dateInvoice, invoiceDetail, totalAmountInvoi
 };
 
 
-const buildPrintRequest = (dateInvoice: string, invoiceDetail: IInvoiceDetail[], totalAmountInvoice: string, printerSelected: PrinterInfo): PrintJobRequest => {
+const buildPrintRequest = (dateInvoice: string, invoiceDetail: IInvoiceDetail[], totalAmountInvoice: string, printerSelected: PrinterInfo, id_invoice: number): PrintJobRequest => {
   const ticket: PrintJobRequest = {
     printer: printerSelected.name,
     paper_size: "Mm80",
@@ -62,6 +62,7 @@ const buildPrintRequest = (dateInvoice: string, invoiceDetail: IInvoiceDetail[],
       text(dateInvoice.replace('T', ''), {
         align: TEXT_ALIGN.CENTER,
       }),
+      text("Factura: "+id_invoice.toString(), {align: TEXT_ALIGN.LEFT}),
       feed(1),
       table(
         6,

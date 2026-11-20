@@ -185,7 +185,7 @@ pub async fn get_products_by_invoice(state: State<'_, DbPool>, invoice_id: i32) 
 
   let invoice_info: InvoiceInfoDto = invoices::table
     .filter(invoices::id_invoice.eq(invoice_id))
-    .select((invoices::created_on, invoices::total_amount))
+    .select((invoices::created_on, invoices::total_amount, invoices::id_invoice))
     .first(&mut conn)
     .map_err(|e| ApiResponse::new_error(format!("ERROR"), Constants::ERRORDB, format!("El empleado NO tiene menus asociados {:?}", e)))?;
 
@@ -193,6 +193,7 @@ pub async fn get_products_by_invoice(state: State<'_, DbPool>, invoice_id: i32) 
     date_invoice: format_utc_as_honduras_time(invoice_info.date_invoice)
     , invoice_detail
     , total_amount_invoice: invoice_info.total_amount_invoice
+    , id_invoice: invoice_info.id_invoice
   };
 
   Ok(ApiResponse::new_success(

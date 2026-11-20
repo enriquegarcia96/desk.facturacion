@@ -11,6 +11,7 @@ import { useInventoryStore } from '../store/inventory.store';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import { TableDataCategory, TableDataProduct } from '@interface/TableType';
 import {formattedMoney} from '../../../utils';
+import { FormEditProduct } from './FormEditProduct';
 
 
 // ===================== HOC AutoHeightTable =====================
@@ -112,21 +113,23 @@ const presets = [
 ];
 
 export const InventoryTable = () => {
-  const {
-    categories
-    , isLoadingCategories
-    , loadProductsByCategoryAction
-    , products
-    , isLoadingProducts} = useInventoryStore();
+
+  const products = useInventoryStore((state) => state.products);
+  const categories = useInventoryStore((state) => state.categories);
+  const isLoadingProducts = useInventoryStore((state) => state.isLoadingProducts);
+  const isLoadingCategories = useInventoryStore((state) => state.isLoadingCategories);
   const loadCategoriesAction = useInventoryStore((state) => state.loadCategoriesAction);
+  const loadProductsByCategoryAction = useInventoryStore((state) => state.loadProductsByCategoryAction);  
+
   const [open, setOpen] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
   const [nameCategory, setNameCategory] = useState('');
+  const [openFormEdit, setOpenFormEdit] = useState(false);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
+  const searchInput = useRef<InputRef>(null);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
-  const searchInput = useRef<InputRef>(null);
 
   type DataIndex = keyof TableDataProduct;
   const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<TableDataProduct> => ({
@@ -219,21 +222,23 @@ export const InventoryTable = () => {
   {
     title: 'Edición',
     key: 'operation',
-    render: () => (
+    render: (_, product) => (
       <Space size='small'>
         <Tooltip title='Editar'>
-          <EditFilled style={{color: 'blue', fontSize: 17}} onClick={ss} />
+          <EditFilled style={{color: 'blue', fontSize: 17}} onClick={() => ss(product)} />
         </Tooltip>
         <Tooltip title='Eliminar'>
-          <DeleteFilled style={{color: 'red', fontSize: 17}} onClick={ss} />
+          <DeleteFilled style={{color: 'red', fontSize: 17}} onClick={() => ss(product)} />
         </Tooltip>
       </Space>
     ),
   },
-];
+  ];
 
-const ss = () => {
-
+const ss = (product: TableDataProduct) => {
+  console.log('click ? ', product)
+  setOpenFormEdit(true)
+  
 }
 
 const handleSearch = (
@@ -355,6 +360,11 @@ const handleSearch = (
     setOpen(false);
   }
 
+  const onClosedEdit = () => {
+    setOpenFormEdit(false);
+  }
+
+  //TODO: Analizar en como levanatr el formulario de editar un productos
   return (
     <>
     {
@@ -365,7 +375,16 @@ const handleSearch = (
         categoryId={categoryId}
         nameCategory={nameCategory}
       />
-    }    
+    }
+    {
+      openFormEdit && <FormEditProduct
+        openModal={openFormEdit}
+        typeAction={EnumActionsCrud.EDIT}
+        onClosed={() => onClosedEdit()}
+        categoryId={categoryId}
+        nameCategory={nameCategory}
+      />
+    }
     <div className='flex h-screen'>
       <div className='w-full h-full'>
         <AutoHeightTable<TableDataCategory>

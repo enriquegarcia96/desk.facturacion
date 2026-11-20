@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { IOrderWithDetails } from "@interface/order.interface";
 import { ICreateInvoiceRequest, ProductToSearchRequest } from "@interface/Request";
-import { IActiveCategories, IApiResponse, IInvoice, IInvoiceClient, IInvoiceId, IProductsTable } from "@interface/ApiResponse";
+import { IActiveCategories, IApiResponse, IInvoiceClient, IInvoiceId, IProductsTable } from "@interface/ApiResponse";
 
 export class CartService {
   static getCategories = async(): Promise<IApiResponse<IActiveCategories>> => {
