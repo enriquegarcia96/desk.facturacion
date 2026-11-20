@@ -8,8 +8,8 @@ import { useCartStore } from "../store/cart.store";
 
 export const SalesPage = () => {
   const [form] = Form.useForm();
-  const messageToUser = useCartStore((state) => state.productAddedMessage);
-  const isNewProductAdded = useCartStore((state) => state.isNewProductAdded);
+  const isAdded = useCartStore((state) => state.isAdded);
+  const messageToUser = useCartStore((state) => state.message);
   const clearMessage = useCartStore((state) => state.clearMessage);
 
   const onReset = () => {
@@ -20,7 +20,7 @@ export const SalesPage = () => {
     <div className="flex flex-row h-full">
       <Message
         messageToUser={messageToUser!}
-        typeMessage={isNewProductAdded ? 'success' : 'error'}
+        typeMessage={isAdded ? 'success' : 'error'}
         onClose={clearMessage}
       />
       <div className="flex flex-col w-1/2 px-0.5">

@@ -7,35 +7,35 @@ import {
   MinusOutlined,
   PlusOutlined,
   DeleteOutlined,
-  PauseOutlined,
   DollarOutlined,
-  MobileOutlined,
-  CreditCardOutlined,
+  PoweroffOutlined,
+  SyncOutlined
 } from '@ant-design/icons';
+
 import { useCartStore } from '../store/cart.store';
 import { IOrderWithDetails } from '@interface/order.interface';
 import { useAuthStore } from '../../auth/store/auth.store';
 import {printInvoice} from '../../../utils';
-import { IInvoiceId } from '@interface/ApiResponse';
 
 const payments = [
   { key: 'cash', label: 'Efectivo', icon: <DollarOutlined /> },
-  { key: 'transfer', label: 'Transferencia', icon: <MobileOutlined /> },
-  { key: 'debit', label: 'Débito', icon: <CreditCardOutlined /> },
-  { key: 'credit', label: 'Crédito', icon: <CreditCardOutlined /> },
+  // { key: 'transfer', label: 'Transferencia', icon: <MobileOutlined /> },
+  // { key: 'debit', label: 'Débito', icon: <CreditCardOutlined /> },
+  // { key: 'credit', label: 'Crédito', icon: <CreditCardOutlined /> },
 ];
 
 const money = (n: number) => `L ${n.toLocaleString('es-HN')}`;
 
 export const OrderCard = () => {
   const [payment, setPayment] = useState('cash');
+  const [loading, setLoading] = useState(false);
+
   const myOrder = useCartStore((state) => state.order);
   const employee = useAuthStore((state) => state.user);
   const createInvoice = useCartStore((state) => state.createInvoiceAction);
   const increaseQuantity = useCartStore((state) => state.incrementQuantityAction);
   const decrementQuantity = useCartStore((state) => state.decrementQuantityAction);
   const getProductsByInvoice = useCartStore((state) => state.getProductsByInvoiceAction);
-  const clearMyOrder = useCartStore((state) => state.clearOrder);
   
   //TODO: revisar si esto esta bien
   const listo = useCartStore((state) => state.order);
@@ -59,16 +59,21 @@ export const OrderCard = () => {
 
   const onCreateInvoice = async (order: IOrderWithDetails, identityEmployee: string) => {
     if (!order) return;
-    
-    const {invoiceId} = await createInvoice(order, identityEmployee);
-    if (invoiceId === 0) {
-      //TODO: volver a intentar
-      return;
-    }
-    const invoice = await getProductsByInvoice(invoiceId);
-    const isPrintSuccessful: boolean = await printInvoice(invoice);
-    if (isPrintSuccessful) {
-      clearMyOrder();
+    setLoading(true);
+    try {
+      const {invoiceId} = await createInvoice(order, identityEmployee);
+      if (invoiceId === 0) return;
+      
+      const invoice = await getProductsByInvoice(invoiceId);
+      const isPrintSuccessful: boolean = await printInvoice(invoice);
+      
+      if (!isPrintSuccessful) {
+        //TODO: mensaje que la factura njo se pudo impreimir
+      }
+    } catch (error) {
+      console.error(error);
+    }finally{     
+      setLoading(false);
     }
   }
   
@@ -153,7 +158,8 @@ export const OrderCard = () => {
         </div>
 
         {/* Acciones */}
-        <div className="grid grid-cols-[1fr_1.4fr] gap-3 mt-4 border">
+        {/* <div className="grid grid-cols-[1fr_1.4fr] gap-3 mt-4 border"> */}
+        <div className="grid grid-cols-1 gap-3 mt-4">
           {/* <Button size="large" icon={<PauseOutlined />} className="font-semibold! border-black! border-2!">
             Pausar venta
           </Button> */}
@@ -161,6 +167,7 @@ export const OrderCard = () => {
             size="large"
             type="primary"
             className="bg-black! font-semibold!"
+            loading={loading}
             onClick={() => onCreateInvoice(listo!, employee?.identityEmployee!)}
           >
             Efectuar venta

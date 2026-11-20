@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
+import { fmtHN } from "../../../utils";
 import { CartService } from "../services/cart.service";
 import { ProductToSearchRequest } from "@interface/Request";
 import {IAddedProduct, IOrderProducts, IOrderWithDetails} from '@interface/order.interface';
-import { IActiveCategory, IInvoice, IInvoiceClient, IInvoiceId, IListProduct } from "@interface/ApiResponse";
-import { fmtHN } from "../../../utils";
+import { IActiveCategory, IInvoice, IInvoiceId, IListProduct } from "@interface/ApiResponse";
 
 interface CartState {
   categories: IActiveCategory[];
@@ -12,8 +12,8 @@ interface CartState {
   orderProducts: IOrderProducts[];
   order: IOrderWithDetails | null;
   isLoadingProductsToTable: boolean;
-  productAddedMessage: string | null;
-  isNewProductAdded: boolean;
+  message: string | null;
+  isAdded: boolean;
 
   loadCategoryAction: () => Promise<void>;
   loadProductsToTableAction: (request: ProductToSearchRequest) => Promise<void>;
@@ -22,7 +22,6 @@ interface CartState {
   incrementQuantityAction: (idProduct: number, indexArray: number) => void;
   decrementQuantityAction: (idProduct: number, indexArray: number) => void;
   clearMessage: () => void;
-  clearOrder: () => void;
   //TODO: crear la validacion del stock.
   createInvoiceAction: (order: IOrderWithDetails, identityEmployee: string) => Promise<IInvoiceId>;
   getProductsByInvoiceAction: (invoiceId: number) => Promise<IInvoice>;
@@ -34,8 +33,8 @@ export const useCartStore = create<CartState>()((set) => ({
   order: null,
   products: null,
   isLoadingProductsToTable: false,
-  productAddedMessage: null,
-  isNewProductAdded: false,
+  message: null,
+  isAdded: false,
 
   loadCategoryAction: async (): Promise<void> => {
     set({categories: []});
@@ -67,9 +66,7 @@ export const useCartStore = create<CartState>()((set) => ({
     set({products: null});
   },
 
-  clearMessage: () => set({productAddedMessage: null, isNewProductAdded: false}) ,
-
-  clearOrder: () => set({order: null}),
+  clearMessage: () => set({message: null, isAdded: false}),
 
   addedOrderProductAction: async (newProduct: IAddedProduct) : Promise<boolean> => {
     try {
@@ -90,10 +87,10 @@ export const useCartStore = create<CartState>()((set) => ({
       return true;
     } catch (error) {
       console.error(error);
-      set({productAddedMessage: null,  isNewProductAdded: false});
+      set({message: null,  isAdded: false});
       return false;
     }finally{
-      set({productAddedMessage: 'Nuevo producto agregado', isNewProductAdded: true});
+      set({message: 'Nuevo producto agregado', isAdded: true});
     }
   },
 
@@ -133,15 +130,18 @@ export const useCartStore = create<CartState>()((set) => ({
     try {
       const {code, data} = await CartService.newInvoice(order, identityEmployee);
       if(code === 200){
+        set({message: 'Venta registrada', isAdded: true, order: null});
         return data;
       }
+
+      set({ message: "No se pudo efectuar la venta", isAdded: false });
       return { invoiceId: 0 };
     } catch (error) {
       console.error(error);
       const ss: IInvoiceId = {
         invoiceId: 0
       };
-      
+      set({ message: "No se pudo efectuar la venta", isAdded: false });
       return  ss;
     }finally{
       //TODO: limpiar la orden para quede limpio
@@ -151,10 +151,11 @@ export const useCartStore = create<CartState>()((set) => ({
   getProductsByInvoiceAction: async (invoiceId: number): Promise<IInvoice> => {
     try {
       const {data} = await CartService.getProductsByInvoice(invoiceId);
+      console.log(data)
       return data.invoice;
     } catch (error) {
       console.error(error);
-      const dd: IInvoice = {dateInvoice: '', invoiceDetail: [], totalAmountInvoice: ''};
+      const dd: IInvoice = {dateInvoice: '', invoiceDetail: [], totalAmountInvoice: '', idInvoice: 0};
       return dd;
     }
   }

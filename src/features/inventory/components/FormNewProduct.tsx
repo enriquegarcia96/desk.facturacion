@@ -19,7 +19,7 @@ type Props = {
   nameCategory: string;
 }
 
-  const colors: string[] = [
+const colors: string[] = [
   'magenta',
   'red',
   'volcano',
@@ -46,10 +46,7 @@ export const FormNewProduct = ({ openModal, onClosed, typeAction, categoryId, na
   );
 
   useEffect(() => {
-    console.log('cuando veces entro ?', color)
-    return () => {
-      console.log('se limpio ?')
-    };
+    
   }, []);
 
   const onCreate = async (values: NewProductRequest) => {

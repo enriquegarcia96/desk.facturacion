@@ -91,6 +91,7 @@ export interface IInvoiceClient{
 export interface IInvoice {
   dateInvoice: string
   , totalAmountInvoice: string
+  , idInvoice: number
   , invoiceDetail: IInvoiceDetail[]
 }
 export interface IInvoiceDetail {
